@@ -12,7 +12,7 @@ class NextSmsHubtelCallback(http.Controller):
     payload is logged and acknowledged with 200 so Hubtel doesn't retry
     indefinitely."""
 
-    @http.route('/next_sms/hubtel/delivery_report', type='json', auth='public', csrf=False, methods=['POST'])
+    @http.route('/next_sms/hubtel/delivery_report', type='jsonrpc', auth='public', csrf=False, methods=['POST'])
     def delivery_report(self, **kw):
         try:
             payload = json.loads(request.httprequest.data or b'{}')

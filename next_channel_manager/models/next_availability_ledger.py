@@ -52,6 +52,17 @@ class NextAvailabilityLedger(models.Model):
         if to_create:
             self.create(to_create)
 
+    @api.model
+    def _cron_extend_horizon(self):
+        """Daily cron entry point (data/next_channel_manager_cron.xml): extends
+        the ledger one year ahead for every room. Kept as a real model method
+        rather than inline ir.cron code, since ir.cron's sandboxed `code`
+        field disallows import statements (and this needs none)."""
+        room_ids = self.env['next.room'].search([]).ids
+        date_from = fields.Date.today()
+        date_to = fields.Date.add(date_from, days=365)
+        self.ensure_rows(room_ids, date_from, date_to)
+
     def reserve_nights(self, room_ids, date_from, date_to, reservation_id=None, ota_channel=None):
         """The concurrency-safe entry point. Locks the exact rows for
         (room_ids x [date_from, date_to)) with FOR UPDATE, checks none are
