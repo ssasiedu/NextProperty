@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_next_guest_inventory_item_front_desk,next.guest.inventory.item.front.desk,model_next_guest_inventory_item,next_base.group_next_front_desk,1,1,1,1
+access_next_guest_inventory_item_manager,next.guest.inventory.item.manager,model_next_guest_inventory_item,next_base.group_next_manager,1,1,1,1
+access_next_checkout_wizard_front_desk,next.checkout.reconciliation.wizard.front.desk,model_next_checkout_reconciliation_wizard,next_base.group_next_front_desk,1,1,1,1
+access_next_checkout_wizard_line_front_desk,next.checkout.reconciliation.wizard.line.front.desk,model_next_checkout_reconciliation_wizard_line,next_base.group_next_front_desk,1,1,1,1
+access_next_checkout_wizard_manager,next.checkout.reconciliation.wizard.manager,model_next_checkout_reconciliation_wizard,next_base.group_next_manager,1,1,1,1
+access_next_checkout_wizard_line_manager,next.checkout.reconciliation.wizard.line.manager,model_next_checkout_reconciliation_wizard_line,next_base.group_next_manager,1,1,1,1

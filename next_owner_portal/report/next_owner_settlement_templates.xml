@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<template id="report_next_owner_settlement">
+    <t t-call="web.html_container">
+        <t t-foreach="docs" t-as="doc">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <h2>Owner Settlement / Payout Statement</h2>
+                    <p>Room: <span t-field="doc.name"/> &#8212; Property: <span t-field="doc.property_id.name"/></p>
+                    <p>Owner: <span t-field="doc.owner_id.name"/></p>
+
+                    <h4>Published Net Revenue Statements</h4>
+                    <table class="table table-sm">
+                        <thead><tr><th>Period</th><th>Amount</th><th>Entered By</th></tr></thead>
+                        <tbody>
+                            <t t-foreach="doc.env['next.owner.net.revenue'].search([
+                                    ('room_id', '=', doc.id), ('state', '=', 'published')],
+                                    order='period_year desc, period_month desc', limit=12)" t-as="nr">
+                                <tr>
+                                    <td><t t-esc="nr.period_month"/>/<t t-esc="nr.period_year"/></td>
+                                    <td><span t-field="nr.amount"/></td>
+                                    <td><t t-esc="nr.entered_by.name"/></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+
+                    <p class="text-muted mt-4">
+                        This statement reflects manually entered, published net revenue only.
+                        It has been reconciled against internal expense/net-income records prior to publication.
+                    </p>
+                </div>
+            </t>
+        </t>
+    </t>
+</template>
+</odoo>

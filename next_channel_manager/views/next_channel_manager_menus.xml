@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_next_channel_manager_root" name="Channel Manager" parent="next_base.menu_next_root"
+              sequence="55" groups="next_base.group_next_manager"/>
+    <menuitem id="menu_next_ota_channel" name="OTA Channels" parent="menu_next_channel_manager_root"
+              action="action_next_ota_channel" sequence="10"/>
+    <menuitem id="menu_next_availability_ledger" name="Availability Ledger" parent="menu_next_channel_manager_root"
+              action="action_next_availability_ledger" sequence="20"/>
+</odoo>

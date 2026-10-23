@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Reserved for future sequence needs (e.g. settlement statement numbering). -->
+    </data>
+</odoo>

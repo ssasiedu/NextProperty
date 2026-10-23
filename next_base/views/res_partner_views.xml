@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_partner_form_next_inherit" model="ir.ui.view">
+        <field name="name">res.partner.form.next.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Property Management" name="next_pm">
+                    <group>
+                        <field name="is_property_owner"/>
+                        <field name="sms_opt_in"/>
+                    </group>
+                    <group string="Owned Properties" invisible="not is_property_owner">
+                        <field name="owned_property_ids" widget="many2many_tags" nolabel="1"/>
+                    </group>
+                    <group string="Owned Rooms" invisible="not is_property_owner">
+                        <field name="owned_room_ids" nolabel="1">
+                            <list>
+                                <field name="name"/>
+                                <field name="property_id"/>
+                                <field name="status"/>
+                            </list>
+                        </field>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

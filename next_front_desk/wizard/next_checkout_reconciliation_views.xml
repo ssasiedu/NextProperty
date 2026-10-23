@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_next_checkout_reconciliation_wizard_form" model="ir.ui.view">
+        <field name="name">next.checkout.reconciliation.wizard.form</field>
+        <field name="model">next.checkout.reconciliation.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Checkout - Inventory Reconciliation">
+                <p>Confirm the quantity of each issued item that was returned.
+                   Any shortfall will be charged to the guest's folio automatically.</p>
+                <field name="reservation_id" readonly="1" invisible="1"/>
+                <field name="line_ids">
+                    <list editable="bottom">
+                        <field name="inventory_item_id" readonly="1" column_invisible="True"/>
+                        <field name="name"/>
+                        <field name="quantity_issued"/>
+                        <field name="quantity_returned"/>
+                    </list>
+                </field>
+                <footer>
+                    <button name="action_confirm" string="Confirm &amp; Complete Checkout"
+                            type="object" class="btn-primary"/>
+                    <button string="Cancel" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>

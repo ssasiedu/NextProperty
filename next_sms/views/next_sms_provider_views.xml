@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_next_sms_provider_form" model="ir.ui.view">
+        <field name="name">next.sms.provider.form</field>
+        <field name="model">next.sms.provider</field>
+        <field name="arch" type="xml">
+            <form string="SMS Provider">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="provider_type"/>
+                            <field name="company_id"/>
+                            <field name="property_id"/>
+                            <field name="active"/>
+                        </group>
+                        <group>
+                            <field name="client_id"/>
+                            <field name="client_secret" password="True"/>
+                            <field name="sender_id"/>
+                            <field name="callback_url"/>
+                            <field name="api_base_url"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_next_sms_provider_list" model="ir.ui.view">
+        <field name="name">next.sms.provider.list</field>
+        <field name="model">next.sms.provider</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="provider_type"/>
+                <field name="company_id"/>
+                <field name="property_id"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_next_sms_provider" model="ir.actions.act_window">
+        <field name="name">SMS Providers</field>
+        <field name="res_model">next.sms.provider</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

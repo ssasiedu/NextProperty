@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_next_maintenance_root" name="Maintenance" parent="next_base.menu_next_root" sequence="40"
+              action="action_next_maintenance_request"
+              groups="next_base.group_next_maintenance_officer,next_base.group_next_manager"/>
+</odoo>

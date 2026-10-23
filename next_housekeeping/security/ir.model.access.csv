@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_next_housekeeping_task_staff,next.housekeeping.task.staff,model_next_housekeeping_task,next_base.group_next_housekeeping,1,1,0,0
+access_next_housekeeping_task_supervisor,next.housekeeping.task.supervisor,model_next_housekeeping_task,next_base.group_next_housekeeping_supervisor,1,1,1,1
+access_next_housekeeping_task_manager,next.housekeeping.task.manager,model_next_housekeeping_task,next_base.group_next_manager,1,1,1,1

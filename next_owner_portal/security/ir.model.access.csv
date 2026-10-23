@@ -1,0 +1,11 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_next_owner_net_revenue_accountant,next.owner.net.revenue.accountant,model_next_owner_net_revenue,next_base.group_next_accountant,1,1,1,0
+access_next_owner_net_revenue_manager,next.owner.net.revenue.manager,model_next_owner_net_revenue,next_base.group_next_manager,1,1,1,1
+access_next_owner_net_revenue_owner,next.owner.net.revenue.owner,model_next_owner_net_revenue,next_base.group_next_property_owner,1,0,0,0
+access_next_room_expense_accountant,next.room.expense.accountant,model_next_room_expense,next_base.group_next_accountant,1,1,1,1
+access_next_room_expense_manager,next.room.expense.manager,model_next_room_expense,next_base.group_next_manager,1,1,1,1
+access_next_property_viewing_user,next.property.viewing.user,model_next_property_viewing,base.group_user,1,1,1,0
+access_next_property_viewing_owner,next.property.viewing.owner,model_next_property_viewing,next_base.group_next_property_owner,1,0,1,0
+access_next_property_viewing_manager,next.property.viewing.manager,model_next_property_viewing,next_base.group_next_manager,1,1,1,1
+access_next_bi_reservation_report_manager,next.bi.reservation.report.manager,model_next_bi_reservation_report,next_base.group_next_manager,1,0,0,0
+access_next_bi_reservation_report_accountant,next.bi.reservation.report.accountant,model_next_bi_reservation_report,next_base.group_next_accountant,1,0,0,0

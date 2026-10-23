@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<template id="owner_portal_home" name="Owner Portal Home">
+    <t t-call="portal.portal_layout">
+        <h2>My Properties</h2>
+        <div class="row">
+            <t t-foreach="properties" t-as="prop">
+                <div class="col-md-4 mb-3">
+                    <div class="card p-3">
+                        <h4><t t-esc="prop.name"/></h4>
+                        <a href="/my/owner/net-revenue" class="btn btn-link">Net Revenue</a>
+                        <a href="/my/owner/rooms" class="btn btn-link">Room Status</a>
+                        <a href="/my/owner/viewings" class="btn btn-link">Viewings</a>
+                    </div>
+                </div>
+            </t>
+        </div>
+    </t>
+</template>
+
+<template id="owner_portal_net_revenue" name="Owner Portal - Net Revenue">
+    <t t-call="portal.portal_layout">
+        <h2>Net Revenue Statements</h2>
+        <p class="text-muted">Figures below are the officially published statements for your properties.</p>
+        <table class="table">
+            <thead><tr><th>Property</th><th>Room</th><th>Period</th><th>Amount</th></tr></thead>
+            <tbody>
+                <tr t-foreach="statements" t-as="st">
+                    <td><t t-esc="st.property_id.name"/></td>
+                    <td><t t-esc="st.room_id.name or '-'"/></td>
+                    <td><t t-esc="st.period_month"/>/<t t-esc="st.period_year"/></td>
+                    <td><span t-field="st.amount"/></td>
+                </tr>
+            </tbody>
+        </table>
+    </t>
+</template>
+
+<template id="owner_portal_rooms" name="Owner Portal - Room Status">
+    <t t-call="portal.portal_layout">
+        <h2>My Rooms - Live Status</h2>
+        <div class="row">
+            <t t-foreach="rooms" t-as="room">
+                <div class="col-md-3 mb-3">
+                    <div class="card p-2 text-center" t-attf-style="border-left: 6px solid #{room.status_color};">
+                        <strong><t t-esc="room.name"/></strong>
+                        <div><t t-esc="dict(room._fields['status'].selection).get(room.status)"/></div>
+                    </div>
+                </div>
+            </t>
+        </div>
+    </t>
+</template>
+
+<template id="owner_portal_viewings" name="Owner Portal - Property Viewings">
+    <t t-call="portal.portal_layout">
+        <h2>Property Viewings</h2>
+        <table class="table mb-4">
+            <thead><tr><th>Property</th><th>Date</th><th>Purpose</th><th>Status</th></tr></thead>
+            <tbody>
+                <tr t-foreach="viewings" t-as="v">
+                    <td><t t-esc="v.property_id.name"/></td>
+                    <td><t t-esc="v.date_start"/></td>
+                    <td><t t-esc="v.purpose"/></td>
+                    <td><t t-esc="v.state"/></td>
+                </tr>
+            </tbody>
+        </table>
+        <h4>Request a New Viewing</h4>
+        <form action="/my/owner/viewings/new" method="post">
+            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+            <div class="mb-3">
+                <label>Property</label>
+                <select name="property_id" class="form-select">
+                    <option t-foreach="properties" t-as="p" t-att-value="p.id"><t t-esc="p.name"/></option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label>Purpose</label>
+                <select name="purpose" class="form-select">
+                    <option value="routine_inspection">Routine Inspection</option>
+                    <option value="investment_review">Investment Review</option>
+                    <option value="handover">Handover</option>
+                </select>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label>Start</label>
+                    <input type="datetime-local" name="date_start" class="form-control" required="required"/>
+                </div>
+                <div class="col-md-6">
+                    <label>End</label>
+                    <input type="datetime-local" name="date_end" class="form-control" required="required"/>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label>Notes</label>
+                <textarea name="notes" class="form-control"/>
+            </div>
+            <button type="submit" class="btn btn-primary">Request Viewing</button>
+        </form>
+    </t>
+</template>
+
+</odoo>

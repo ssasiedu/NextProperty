@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_next_guest_inventory_item_list" model="ir.ui.view">
+        <field name="name">next.guest.inventory.item.list</field>
+        <field name="model">next.guest.inventory.item</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="name"/>
+                <field name="category"/>
+                <field name="quantity_issued"/>
+                <field name="quantity_returned"/>
+                <field name="unit_value"/>
+                <field name="discrepancy_qty" readonly="1"/>
+                <field name="discrepancy_charge" readonly="1"/>
+                <field name="reconciled"/>
+            </list>
+        </field>
+    </record>
+
+</odoo>

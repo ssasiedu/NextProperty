@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<template id="qr_order_menu" name="QR Self-Order Menu">
+    <t t-call="website.layout">
+        <div class="container py-4">
+            <h2>Room <t t-esc="room.name"/> &#8212; Order</h2>
+            <form t-attf-action="/qr-order/#{room.id}/#{token}/submit" method="post">
+                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                <div class="row">
+                    <t t-foreach="products" t-as="p">
+                        <div class="col-6 col-md-3 mb-3">
+                            <div class="card p-2 text-center">
+                                <strong><t t-esc="p.name"/></strong>
+                                <div><t t-esc="p.lst_price"/></div>
+                                <input type="number" t-attf-name="qty_#{p.id}" min="0" value="0" class="form-control mt-1"/>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+                <button type="submit" class="btn btn-success btn-lg">Place Order</button>
+            </form>
+        </div>
+    </t>
+</template>
+
+<template id="qr_order_thanks" name="QR Order Thanks">
+    <t t-call="website.layout">
+        <div class="container py-5 text-center">
+            <h2>Thanks! Your order has been sent to the kitchen/service team.</h2>
+            <p>It will appear on your folio automatically.</p>
+        </div>
+    </t>
+</template>
+
+<template id="qr_order_no_active_stay" name="QR Order - No Active Stay">
+    <t t-call="website.layout">
+        <div class="container py-5 text-center">
+            <h2>No active stay found for Room <t t-esc="room.name"/></h2>
+            <p>Please contact the front desk for assistance.</p>
+        </div>
+    </t>
+</template>
+
+<template id="qr_order_invalid" name="QR Order - Invalid Code">
+    <t t-call="website.layout">
+        <div class="container py-5 text-center">
+            <h2>This QR code is no longer valid.</h2>
+        </div>
+    </t>
+</template>
+
+</odoo>

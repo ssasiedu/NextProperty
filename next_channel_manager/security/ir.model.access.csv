@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_next_availability_ledger_user,next.availability.ledger.user,model_next_availability_ledger,base.group_user,1,1,1,0
+access_next_availability_ledger_manager,next.availability.ledger.manager,model_next_availability_ledger,next_base.group_next_manager,1,1,1,1
+access_next_ota_channel_manager,next.ota.channel.manager,model_next_ota_channel,next_base.group_next_manager,1,1,1,1
