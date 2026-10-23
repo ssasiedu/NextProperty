@@ -22,7 +22,7 @@ class MaintenanceRequest(models.Model):
 
     assigned_officer_id = fields.Many2one(
         'res.users', string='Maintenance Officer',
-        domain=lambda self: [('groups_id', 'in', self.env.ref('next_base.group_next_maintenance_officer').id)])
+        domain=lambda self: [('group_ids', 'in', self.env.ref('next_base.group_next_maintenance_officer').id)])
 
     next_state = fields.Selection([
         ('new', 'New'),

@@ -10,7 +10,7 @@ class NextHousekeepingTask(models.Model):
         Template = self.env['next.sms.template']
         front_desk_group = self.env.ref('next_base.group_next_front_desk')
         for rec in self:
-            for staff in self.env['res.users'].search([('groups_id', 'in', front_desk_group.id)]).mapped('partner_id'):
+            for staff in self.env['res.users'].search([('group_ids', 'in', front_desk_group.id)]).mapped('partner_id'):
                 Template.send_trigger('housekeeping_room_ready', staff,
                                        property_id=rec.property_id.id,
                                        placeholders={'room_number': rec.room_id.name}, related_record=rec)

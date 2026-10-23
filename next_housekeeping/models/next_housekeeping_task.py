@@ -26,7 +26,7 @@ class NextHousekeepingTask(models.Model):
     ], default='not_started', required=True, tracking=True, copy=False)
 
     assigned_to = fields.Many2one('res.users', string='Assigned To', tracking=True,
-                                   domain=lambda self: [('groups_id', 'in',
+                                   domain=lambda self: [('group_ids', 'in',
                                                           self.env.ref('next_base.group_next_housekeeping').id)])
     supervisor_id = fields.Many2one('res.users', string='Supervisor')
 
