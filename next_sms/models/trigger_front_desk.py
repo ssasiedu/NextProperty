@@ -41,7 +41,7 @@ class NextCheckoutReconciliationWizard(models.TransientModel):
         if total_discrepancy_before:
             reservation = self.reservation_id
             supervisor_group = self.env.ref('next_base.group_next_housekeeping_supervisor')
-            supervisors = self.env['res.users'].search([('groups_id', 'in', supervisor_group.id)])
+            supervisors = self.env['res.users'].search([('group_ids', 'in', supervisor_group.id)])
             Template = self.env['next.sms.template']
             for supervisor in supervisors.mapped('partner_id'):
                 Template.send_trigger('checkout_discrepancy', supervisor,
