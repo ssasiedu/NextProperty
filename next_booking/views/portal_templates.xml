@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<template id="portal_my_home_next_inherit" inherit_id="portal.portal_my_home" name="Portal Home: Bookings">
+    <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+        <t t-call="portal.portal_docs_entry">
+            <t t-set="title">My Bookings</t>
+            <t t-set="url" t-value="'/my/bookings'"/>
+            <t t-set="count" t-value="reservation_count"/>
+        </t>
+        <t t-call="portal.portal_docs_entry">
+            <t t-set="title">Service Requests</t>
+            <t t-set="url" t-value="'/my/service-requests'"/>
+            <t t-set="count" t-value="service_request_count"/>
+        </t>
+    </xpath>
+</template>
+
+<template id="portal_my_bookings" name="My Bookings">
+    <t t-call="portal.portal_layout">
+        <t t-set="breadcrumbs_searchbar" t-value="True"/>
+        <div class="o_portal_my_doc_table">
+            <table class="table table-hover">
+                <thead><tr><th>Reference</th><th>Property</th><th>Check-in</th><th>Check-out</th><th>Status</th><th/></tr></thead>
+                <tbody>
+                    <tr t-foreach="reservations" t-as="res">
+                        <td><t t-esc="res.name"/></td>
+                        <td><t t-esc="res.property_id.name"/></td>
+                        <td><t t-esc="res.date_from"/></td>
+                        <td><t t-esc="res.date_to"/></td>
+                        <td><t t-esc="res.state"/></td>
+                        <td><a t-attf-href="/my/bookings/#{res.id}">View</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <t t-call="portal.pager"/>
+    </t>
+</template>
+
+<template id="portal_booking_detail" name="Booking Detail">
+    <t t-call="portal.portal_layout">
+        <h2><t t-esc="reservation.name"/></h2>
+        <p>Property: <t t-esc="reservation.property_id.name"/></p>
+        <p>Rooms: <t t-esc="', '.join(reservation.room_ids.mapped('name'))"/></p>
+        <p>Dates: <t t-esc="reservation.date_from"/> &#8594; <t t-esc="reservation.date_to"/></p>
+        <p>Status: <t t-esc="reservation.state"/></p>
+        <a t-attf-href="/my/bookings/#{reservation.id}/folio" class="btn btn-secondary">View Folio</a>
+    </t>
+</template>
+
+<template id="portal_booking_folio" name="Booking Folio">
+    <t t-call="portal.portal_layout">
+        <h2>Folio <t t-esc="folio.name"/></h2>
+        <table class="table">
+            <thead><tr><th>Description</th><th>Qty</th><th>Amount</th></tr></thead>
+            <tbody>
+                <tr t-foreach="folio.line_ids" t-as="line">
+                    <td><t t-esc="line.description"/></td>
+                    <td><t t-esc="line.quantity"/></td>
+                    <td><t t-esc="line.amount"/></td>
+                </tr>
+            </tbody>
+            <tfoot><tr><th colspan="2">Total</th><th><t t-esc="folio.amount_total"/></th></tr></tfoot>
+        </table>
+        <a t-if="folio.move_id" t-attf-href="/my/bookings/#{folio.reservation_id.id}/folio/pdf" class="btn btn-secondary">Download PDF</a>
+    </t>
+</template>
+
+<template id="portal_my_service_requests" name="My Service Requests">
+    <t t-call="portal.portal_layout">
+        <t t-set="breadcrumbs_searchbar" t-value="True"/>
+        <a href="/my/service-requests/new" class="btn btn-primary mb-3">New Request</a>
+        <table class="table table-hover">
+            <thead><tr><th>Subject</th><th>Type</th><th>Status</th></tr></thead>
+            <tbody>
+                <tr t-foreach="service_requests" t-as="sr">
+                    <td><t t-esc="sr.name"/></td>
+                    <td><t t-esc="sr.request_type"/></td>
+                    <td><t t-esc="sr.status"/></td>
+                </tr>
+            </tbody>
+        </table>
+        <t t-call="portal.pager"/>
+    </t>
+</template>
+
+<template id="portal_new_service_request" name="New Service Request">
+    <t t-call="portal.portal_layout">
+        <h2>New Service Request</h2>
+        <form action="/my/service-requests/new" method="post">
+            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+            <div class="mb-3">
+                <label>Stay</label>
+                <select name="reservation_id" class="form-select">
+                    <option t-foreach="reservations" t-as="r" t-att-value="r.id"><t t-esc="r.name"/></option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label>Type</label>
+                <select name="request_type" class="form-select">
+                    <option value="fault">Fault Report</option>
+                    <option value="room_service">Room Service</option>
+                    <option value="general">General Request</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label>Subject</label>
+                <input type="text" name="name" class="form-control" required="required"/>
+            </div>
+            <div class="mb-3">
+                <label>Description</label>
+                <textarea name="description" class="form-control"/>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </t>
+</template>
+
+</odoo>

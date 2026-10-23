@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_pos_order_form_next_inherit" model="ir.ui.view">
+        <field name="name">pos.order.form.next.inherit</field>
+        <field name="model">pos.order</field>
+        <field name="inherit_id" ref="point_of_sale.view_pos_pos_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="next_reservation_id" string="Guest Stay"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_pos_config_form_next_inherit" model="ir.ui.view">
+        <field name="name">pos.config.form.next.inherit</field>
+        <field name="model">pos.config</field>
+        <field name="inherit_id" ref="point_of_sale.pos_config_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <group string="NEXT Property Management">
+                    <field name="next_property_id"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_next_qr_order_list" model="ir.ui.view">
+        <field name="name">next.qr.order.list</field>
+        <field name="model">next.qr.order</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="room_id"/>
+                <field name="reservation_id"/>
+                <field name="amount_total"/>
+                <field name="status"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_next_qr_order" model="ir.actions.act_window">
+        <field name="name">QR Orders</field>
+        <field name="res_model">next.qr.order</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_next_qr_order" name="QR Orders" parent="next_base.menu_next_root"
+              action="action_next_qr_order" sequence="35"
+              groups="next_base.group_next_front_desk,next_base.group_next_manager"/>
+
+</odoo>

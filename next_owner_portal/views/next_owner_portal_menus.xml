@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_next_owner_portal_root" name="Owner Portal" parent="next_base.menu_next_root" sequence="50"
+              groups="next_base.group_next_accountant,next_base.group_next_manager"/>
+
+    <menuitem id="menu_next_bi_dashboard" name="BI Dashboard" parent="menu_next_owner_portal_root"
+              action="action_next_bi_dashboard" sequence="10"/>
+    <menuitem id="menu_next_owner_net_revenue" name="Net Revenue Statements" parent="menu_next_owner_portal_root"
+              action="action_next_owner_net_revenue" sequence="20"/>
+    <menuitem id="menu_next_room_expense" name="Room/Property Expenses" parent="menu_next_owner_portal_root"
+              action="action_next_room_expense" sequence="30"/>
+    <menuitem id="menu_next_property_viewing" name="Property Viewings" parent="menu_next_owner_portal_root"
+              action="action_next_property_viewing" sequence="40"/>
+</odoo>

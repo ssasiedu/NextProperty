@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_next_service_request" name="Service Requests"
+              parent="next_base.menu_next_root" action="action_next_service_request" sequence="25"
+              groups="next_base.group_next_front_desk,next_base.group_next_manager"/>
+</odoo>

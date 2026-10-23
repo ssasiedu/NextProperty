@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_next_sms_log_pivot" model="ir.ui.view">
+        <field name="name">next.sms.log.pivot</field>
+        <field name="model">next.sms.log</field>
+        <field name="arch" type="xml">
+            <pivot string="SMS Usage &amp; Cost">
+                <field name="property_id" type="row"/>
+                <field name="trigger_code" type="row"/>
+                <field name="status" type="col"/>
+                <field name="cost" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_next_sms_log_graph" model="ir.ui.view">
+        <field name="name">next.sms.log.graph</field>
+        <field name="model">next.sms.log</field>
+        <field name="arch" type="xml">
+            <graph string="SMS Delivery Health" type="bar">
+                <field name="create_date" interval="day"/>
+                <field name="status"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="action_next_sms_dashboard" model="ir.actions.act_window">
+        <field name="name">SMS Dashboard</field>
+        <field name="res_model">next.sms.log</field>
+        <field name="view_mode">graph,pivot,list</field>
+    </record>
+
+</odoo>

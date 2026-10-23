@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_next_front_desk_root" name="Front Desk" parent="next_base.menu_next_root" sequence="8"
+              groups="next_base.group_next_front_desk,next_base.group_next_manager"/>
+    <menuitem id="menu_next_front_desk_dashboard" name="Dashboard" parent="menu_next_front_desk_root"
+              action="action_next_front_desk_dashboard" sequence="10"/>
+    <menuitem id="menu_next_front_desk_gantt" name="Room Schedule" parent="menu_next_front_desk_root"
+              action="action_next_front_desk_gantt" sequence="20"/>
+</odoo>

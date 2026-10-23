@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_next_qr_order_user,next.qr.order.user,model_next_qr_order,base.group_user,1,1,1,0
+access_next_qr_order_front_desk,next.qr.order.front.desk,model_next_qr_order,next_base.group_next_front_desk,1,1,1,0
+access_next_qr_order_line_user,next.qr.order.line.user,model_next_qr_order_line,base.group_user,1,1,1,0
+access_next_qr_order_public,next.qr.order.public,model_next_qr_order,base.group_public,1,0,1,0
+access_next_qr_order_line_public,next.qr.order.line.public,model_next_qr_order_line,base.group_public,1,0,1,0

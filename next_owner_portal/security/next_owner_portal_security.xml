@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="rule_next_owner_net_revenue_owner_read" model="ir.rule">
+            <field name="name">Property Owner: own published net revenue only, read-only</field>
+            <field name="model_id" ref="model_next_owner_net_revenue"/>
+            <field name="domain_force">[('property_id.owner_ids.user_ids', 'in', [user.id]), ('state', '=', 'published')]</field>
+            <field name="groups" eval="[(4, ref('next_base.group_next_property_owner'))]"/>
+            <field name="perm_read">1</field>
+            <field name="perm_write">0</field>
+            <field name="perm_create">0</field>
+            <field name="perm_unlink">0</field>
+        </record>
+
+        <record id="rule_next_owner_net_revenue_accountant" model="ir.rule">
+            <field name="name">Accountant/Manager: full access to net revenue</field>
+            <field name="model_id" ref="model_next_owner_net_revenue"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('next_base.group_next_accountant')), (4, ref('next_base.group_next_manager'))]"/>
+        </record>
+
+        <record id="rule_next_property_viewing_owner" model="ir.rule">
+            <field name="name">Property Owner: own viewings only</field>
+            <field name="model_id" ref="model_next_property_viewing"/>
+            <field name="domain_force">[('owner_id.user_ids', 'in', [user.id])]</field>
+            <field name="groups" eval="[(4, ref('next_base.group_next_property_owner'))]"/>
+        </record>
+
+    </data>
+</odoo>

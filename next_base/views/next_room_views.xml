@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_next_room_form" model="ir.ui.view">
+        <field name="name">next.room.form</field>
+        <field name="model">next.room</field>
+        <field name="arch" type="xml">
+            <form string="Room">
+                <header>
+                    <field name="status" widget="statusbar"
+                           statusbar_visible="blue_pending_checkin,yellow_occupied,red_pending_checkout,green_ready"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Room number"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="property_id"/>
+                            <field name="room_type_id"/>
+                            <field name="floor"/>
+                        </group>
+                        <group>
+                            <field name="owner_id"/>
+                            <field name="blocked_reason" invisible="status != 'grey_blocked'"/>
+                        </group>
+                    </group>
+                    <group string="Self-Order QR Code">
+                        <field name="qr_code" widget="image" class="oe_avatar"/>
+                        <field name="qr_code_url" readonly="1"/>
+                    </group>
+                    <field name="notes"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_next_room_list" model="ir.ui.view">
+        <field name="name">next.room.list</field>
+        <field name="model">next.room</field>
+        <field name="arch" type="xml">
+            <list decoration-info="status=='blue_pending_checkin'"
+                  decoration-warning="status=='yellow_occupied'"
+                  decoration-danger="status=='red_pending_checkout'"
+                  decoration-success="status=='green_ready'"
+                  decoration-muted="status=='grey_blocked'">
+                <field name="property_id"/>
+                <field name="name"/>
+                <field name="room_type_id"/>
+                <field name="owner_id"/>
+                <field name="status"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_next_room_kanban" model="ir.ui.view">
+        <field name="name">next.room.kanban</field>
+        <field name="model">next.room</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="status">
+                <templates>
+                    <t t-name="card">
+                        <div t-attf-style="border-left: 4px solid #{record.status_color.raw_value}; padding-left: 6px;">
+                            <strong><field name="name"/></strong>
+                            <div><field name="room_type_id"/></div>
+                            <div><field name="property_id"/></div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="action_next_room" model="ir.actions.act_window">
+        <field name="name">Rooms</field>
+        <field name="res_model">next.room</field>
+        <field name="view_mode">kanban,list,form</field>
+    </record>
+
+</odoo>

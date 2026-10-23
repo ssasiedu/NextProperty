@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_next_housekeeping_task_form" model="ir.ui.view">
+        <field name="name">next.housekeeping.task.form</field>
+        <field name="model">next.housekeeping.task</field>
+        <field name="arch" type="xml">
+            <form string="Housekeeping Task">
+                <header>
+                    <button name="action_start" string="Start" type="object" invisible="state != 'not_started'"/>
+                    <button name="action_mark_inspected" string="Mark Inspected" type="object" invisible="state != 'in_progress'"/>
+                    <button name="action_complete" string="Complete" type="object" invisible="state != 'inspected'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="not_started,in_progress,inspected,complete"/>
+                </header>
+                <sheet>
+                    <div class="oe_title"><h1><field name="name"/></h1></div>
+                    <group>
+                        <group>
+                            <field name="room_id"/>
+                            <field name="property_id"/>
+                            <field name="task_type"/>
+                        </group>
+                        <group>
+                            <field name="assigned_to"/>
+                            <field name="supervisor_id"/>
+                            <field name="deadline"/>
+                            <field name="is_overdue"/>
+                        </group>
+                    </group>
+                    <field name="notes"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_next_housekeeping_task_list" model="ir.ui.view">
+        <field name="name">next.housekeeping.task.list</field>
+        <field name="model">next.housekeeping.task</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="is_overdue" decoration-success="state=='complete'">
+                <field name="room_id"/>
+                <field name="task_type"/>
+                <field name="assigned_to"/>
+                <field name="deadline"/>
+                <field name="state"/>
+                <field name="is_overdue" invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_next_housekeeping_task_kanban" model="ir.ui.view">
+        <field name="name">next.housekeeping.task.kanban</field>
+        <field name="model">next.housekeeping.task</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state">
+                <templates>
+                    <t t-name="card">
+                        <div>
+                            <strong><field name="room_id"/></strong>
+                            <div><field name="task_type"/></div>
+                            <div>Assigned: <field name="assigned_to"/></div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="action_next_housekeeping_task" model="ir.actions.act_window">
+        <field name="name">Housekeeping Tasks</field>
+        <field name="res_model">next.housekeeping.task</field>
+        <field name="view_mode">kanban,list,form</field>
+    </record>
+
+</odoo>

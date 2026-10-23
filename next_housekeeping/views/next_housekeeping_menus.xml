@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_next_housekeeping_root" name="Housekeeping" parent="next_base.menu_next_root" sequence="9"
+              groups="next_base.group_next_housekeeping,next_base.group_next_manager"/>
+    <menuitem id="menu_next_housekeeping_tasks" name="Tasks" parent="menu_next_housekeeping_root"
+              action="action_next_housekeeping_task" sequence="10"/>
+</odoo>

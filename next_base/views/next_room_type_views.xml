@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_next_room_type_form" model="ir.ui.view">
+        <field name="name">next.room.type.form</field>
+        <field name="model">next.room.type</field>
+        <field name="arch" type="xml">
+            <form string="Room Type">
+                <sheet>
+                    <field name="image_1920" widget="image" class="oe_avatar"/>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="e.g. Deluxe King"/></h1>
+                    </div>
+                    <group>
+                        <group string="Property &amp; Pricing">
+                            <field name="property_id"/>
+                            <field name="list_price"/>
+                            <field name="weekend_price"/>
+                            <field name="extra_adult_price"/>
+                            <field name="extra_child_price"/>
+                        </group>
+                        <group string="Capacity">
+                            <field name="max_adults"/>
+                            <field name="max_children"/>
+                            <field name="base_occupancy"/>
+                            <field name="room_count"/>
+                        </group>
+                    </group>
+                    <field name="amenity_ids" widget="many2many_tags"/>
+                    <notebook>
+                        <page string="Website Description">
+                            <field name="description"/>
+                        </page>
+                        <page string="Photo Gallery">
+                            <field name="photo_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="image" widget="image"/>
+                                    <field name="name"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_next_room_type_list" model="ir.ui.view">
+        <field name="name">next.room.type.list</field>
+        <field name="model">next.room.type</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="property_id"/>
+                <field name="name"/>
+                <field name="list_price"/>
+                <field name="max_adults"/>
+                <field name="max_children"/>
+                <field name="room_count"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_next_room_type" model="ir.actions.act_window">
+        <field name="name">Room Types</field>
+        <field name="res_model">next.room.type</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_next_room_amenity" model="ir.actions.act_window">
+        <field name="name">Amenities</field>
+        <field name="res_model">next.room.amenity</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

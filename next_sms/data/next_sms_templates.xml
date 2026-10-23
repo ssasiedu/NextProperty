@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="tmpl_booking_confirmation" model="next.sms.template">
+            <field name="name">Booking Confirmation</field>
+            <field name="trigger_code">booking_confirmation</field>
+            <field name="body">Hi {guest_name}, your booking at {property_name} for {date_from} to {date_to} is confirmed. See you soon!</field>
+        </record>
+        <record id="tmpl_booking_reminder" model="next.sms.template">
+            <field name="name">Check-in Reminder</field>
+            <field name="trigger_code">booking_reminder</field>
+            <field name="body">Hi {guest_name}, this is a reminder that your check-in at {property_name} is tomorrow ({date_from}).</field>
+        </record>
+        <record id="tmpl_booking_cancellation" model="next.sms.template">
+            <field name="name">Booking Cancellation</field>
+            <field name="trigger_code">booking_cancellation</field>
+            <field name="body">Hi {guest_name}, your booking at {property_name} has been cancelled.</field>
+        </record>
+        <record id="tmpl_checkin_complete" model="next.sms.template">
+            <field name="name">Check-in Welcome</field>
+            <field name="trigger_code">checkin_complete</field>
+            <field name="body">Welcome {guest_name}! You're checked into room {room_number}. Wi-Fi details are on your room card. Enjoy your stay!</field>
+        </record>
+        <record id="tmpl_checkout_complete" model="next.sms.template">
+            <field name="name">Checkout Complete</field>
+            <field name="trigger_code">checkout_complete</field>
+            <field name="body">Thank you {guest_name}! You've checked out of room {room_number}. Final folio amount: {amount}.</field>
+        </record>
+        <record id="tmpl_checkout_discrepancy" model="next.sms.template">
+            <field name="name">Inventory Discrepancy</field>
+            <field name="trigger_code">checkout_discrepancy</field>
+            <field name="body">Inventory discrepancy at checkout for room {room_number} ({guest_name}): {amount} charged.</field>
+        </record>
+        <record id="tmpl_qr_order_received" model="next.sms.template">
+            <field name="name">Order Received</field>
+            <field name="trigger_code">qr_order_received</field>
+            <field name="body">Your order for room {room_number} ({amount}) has been received and sent to the kitchen/service team.</field>
+        </record>
+        <record id="tmpl_qr_order_ready" model="next.sms.template">
+            <field name="name">Order Ready</field>
+            <field name="trigger_code">qr_order_ready</field>
+            <field name="body">Your order for room {room_number} is ready!</field>
+        </record>
+        <record id="tmpl_housekeeping_room_ready" model="next.sms.template">
+            <field name="name">Room Ready</field>
+            <field name="trigger_code">housekeeping_room_ready</field>
+            <field name="body">Room {room_number} has been cleaned and is now ready for sale.</field>
+        </record>
+        <record id="tmpl_housekeeping_task_overdue" model="next.sms.template">
+            <field name="name">Task Overdue</field>
+            <field name="trigger_code">housekeeping_task_overdue</field>
+            <field name="body">Housekeeping task for room {room_number} is overdue. Please check.</field>
+        </record>
+        <record id="tmpl_maintenance_new_ticket" model="next.sms.template">
+            <field name="name">New Maintenance Ticket</field>
+            <field name="trigger_code">maintenance_new_ticket</field>
+            <field name="body">New maintenance ticket logged for room {room_number}: {guest_name}.</field>
+        </record>
+        <record id="tmpl_maintenance_status_update" model="next.sms.template">
+            <field name="name">Maintenance Status Update</field>
+            <field name="trigger_code">maintenance_status_update</field>
+            <field name="body">Maintenance update for room {room_number}: status is now {status}.</field>
+        </record>
+        <record id="tmpl_owner_net_revenue_published" model="next.sms.template">
+            <field name="name">Net Revenue Published</field>
+            <field name="trigger_code">owner_net_revenue_published</field>
+            <field name="body">A new net revenue statement for {property_name} ({period}) has been published. Amount: {amount}.</field>
+        </record>
+        <record id="tmpl_owner_viewing_requested" model="next.sms.template">
+            <field name="name">Viewing Requested</field>
+            <field name="trigger_code">owner_viewing_requested</field>
+            <field name="body">A property viewing has been requested at {property_name} for {date_from}.</field>
+        </record>
+        <record id="tmpl_owner_viewing_confirmed" model="next.sms.template">
+            <field name="name">Viewing Confirmed</field>
+            <field name="trigger_code">owner_viewing_confirmed</field>
+            <field name="body">Your property viewing at {property_name} is confirmed for {date_from}.</field>
+        </record>
+        <record id="tmpl_owner_room_status_change" model="next.sms.template">
+            <field name="name">Room Status Change</field>
+            <field name="trigger_code">owner_room_status_change</field>
+            <field name="body">Room {room_number} at {property_name} changed status to {status}.</field>
+        </record>
+        <record id="tmpl_channel_ota_booking_received" model="next.sms.template">
+            <field name="name">OTA Booking Received</field>
+            <field name="trigger_code">channel_ota_booking_received</field>
+            <field name="body">New OTA booking received via {channel} for {property_name}: {date_from} to {date_to}.</field>
+        </record>
+        <record id="tmpl_auth_otp" model="next.sms.template">
+            <field name="name">OTP Code</field>
+            <field name="trigger_code">auth_otp</field>
+            <field name="body">Your NEXT Property Management verification code is {otp}.</field>
+        </record>
+
+    </data>
+</odoo>

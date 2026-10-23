@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="ir_cron_next_channel_sync" model="ir.cron">
+            <field name="name">NEXT Channel Manager: Sync Availability &amp; Rates to OTAs</field>
+            <field name="model_id" ref="model_next_ota_channel"/>
+            <field name="state">code</field>
+            <field name="code">model.search([('active', '=', True)]).action_sync_now()</field>
+            <field name="interval_number">15</field>
+            <field name="interval_type">minutes</field>
+            <field name="active">True</field>
+        </record>
+        <record id="ir_cron_next_ledger_extend_horizon" model="ir.cron">
+            <field name="name">NEXT Channel Manager: Extend Availability Ledger Horizon</field>
+            <field name="model_id" ref="model_next_availability_ledger"/>
+            <field name="state">code</field>
+            <field name="code">
+room_ids = env['next.room'].search([]).ids
+from odoo import fields
+d_from = fields.Date.today()
+d_to = fields.Date.add(d_from, days=365)
+model.ensure_rows(room_ids, d_from, d_to)
+            </field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active">True</field>
+        </record>
+    </data>
+</odoo>

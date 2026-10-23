@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <record id="module_category_next" model="ir.module.category">
+            <field name="name">NEXT Property Management</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <!-- Guest (portal) reuses base.group_portal; no custom group needed,
+             but we keep a reference-friendly category entry via comment. -->
+
+        <record id="group_next_front_desk" model="res.groups">
+            <field name="name">Front Desk Staff</field>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
+        <record id="group_next_housekeeping" model="res.groups">
+            <field name="name">Housekeeping Staff</field>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
+        <record id="group_next_housekeeping_supervisor" model="res.groups">
+            <field name="name">Housekeeping Supervisor</field>
+            <field name="implied_ids" eval="[(4, ref('group_next_housekeeping'))]"/>
+        </record>
+
+        <record id="group_next_maintenance_officer" model="res.groups">
+            <field name="name">Maintenance Officer</field>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
+        <record id="group_next_property_owner" model="res.groups">
+            <field name="name">Property Owner</field>
+            <field name="implied_ids" eval="[(4, ref('base.group_portal'))]"/>
+        </record>
+
+        <record id="group_next_accountant" model="res.groups">
+            <field name="name">Accountant</field>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
+        <record id="group_next_manager" model="res.groups">
+            <field name="name">Hotel Manager/Admin</field>
+            <field name="implied_ids" eval="[(4, ref('group_next_front_desk')),
+                                              (4, ref('group_next_housekeeping_supervisor')),
+                                              (4, ref('group_next_maintenance_officer')),
+                                              (4, ref('group_next_accountant'))]"/>
+        </record>
+
+    </data>
+</odoo>

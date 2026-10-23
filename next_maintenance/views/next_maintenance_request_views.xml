@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_maintenance_request_form_next_inherit" model="ir.ui.view">
+        <field name="name">maintenance.request.form.next.inherit</field>
+        <field name="model">maintenance.request</field>
+        <field name="inherit_id" ref="maintenance.hr_equipment_request_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <group string="NEXT Property Management">
+                    <field name="next_room_id"/>
+                    <field name="next_property_id"/>
+                    <field name="raised_by_type"/>
+                    <field name="assigned_officer_id"/>
+                    <field name="auto_block_room"/>
+                    <field name="service_request_id" readonly="1"/>
+                </group>
+            </xpath>
+            <xpath expr="//field[@name='stage_id']" position="after">
+                <field name="next_state" widget="statusbar"
+                       statusbar_visible="new,assigned,in_progress,resolved,verified"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_maintenance_request_list_next_inherit" model="ir.ui.view">
+        <field name="name">maintenance.request.list.next.inherit</field>
+        <field name="model">maintenance.request</field>
+        <field name="inherit_id" ref="maintenance.hr_equipment_request_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="inside">
+                <field name="next_room_id"/>
+                <field name="next_state"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_next_maintenance_request" model="ir.actions.act_window">
+        <field name="name">Maintenance Requests</field>
+        <field name="res_model">maintenance.request</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="domain">[('next_room_id', '!=', False)]</field>
+    </record>
+
+</odoo>

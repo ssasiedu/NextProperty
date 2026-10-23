@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_next_sms_root" name="SMS" parent="next_base.menu_next_root" sequence="60"
+              groups="next_base.group_next_manager"/>
+    <menuitem id="menu_next_sms_dashboard" name="Dashboard" parent="menu_next_sms_root"
+              action="action_next_sms_dashboard" sequence="10"/>
+    <menuitem id="menu_next_sms_log" name="Message Log" parent="menu_next_sms_root"
+              action="action_next_sms_log" sequence="20"/>
+    <menuitem id="menu_next_sms_template" name="Templates" parent="menu_next_sms_root"
+              action="action_next_sms_template" sequence="30"/>
+    <menuitem id="menu_next_sms_provider" name="Providers" parent="menu_next_sms_root"
+              action="action_next_sms_provider" sequence="40"/>
+</odoo>

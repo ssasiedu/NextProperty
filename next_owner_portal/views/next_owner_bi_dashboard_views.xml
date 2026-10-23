@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_next_bi_reservation_report_pivot" model="ir.ui.view">
+        <field name="name">next.bi.reservation.report.pivot</field>
+        <field name="model">next.bi.reservation.report</field>
+        <field name="arch" type="xml">
+            <pivot string="Hotel Performance (Internal)">
+                <field name="property_id" type="row"/>
+                <field name="booking_source" type="col"/>
+                <field name="gross_revenue" type="measure"/>
+                <field name="room_count" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_next_bi_reservation_report_graph" model="ir.ui.view">
+        <field name="name">next.bi.reservation.report.graph</field>
+        <field name="model">next.bi.reservation.report</field>
+        <field name="arch" type="xml">
+            <graph string="Gross Revenue Trend" type="line">
+                <field name="date_from" interval="month"/>
+                <field name="gross_revenue" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="action_next_bi_dashboard" model="ir.actions.act_window">
+        <field name="name">Hotel BI Dashboard (Internal)</field>
+        <field name="res_model">next.bi.reservation.report</field>
+        <field name="view_mode">graph,pivot,list</field>
+        <field name="help">Internal/management-facing only. Net revenue shown to Property Owners
+                            always comes exclusively from the manually entered and published
+                            Owner Net Revenue Statements - never from this report.</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_next_availability_ledger_list" model="ir.ui.view">
+        <field name="name">next.availability.ledger.list</field>
+        <field name="model">next.availability.ledger</field>
+        <field name="arch" type="xml">
+            <list create="false" edit="false">
+                <field name="room_id"/>
+                <field name="date"/>
+                <field name="reservation_id"/>
+                <field name="ota_hold_channel"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_next_availability_ledger" model="ir.actions.act_window">
+        <field name="name">Availability Ledger</field>
+        <field name="res_model">next.availability.ledger</field>
+        <field name="view_mode">list</field>
+        <field name="help">Read-only technical view of the concurrency-safe availability ledger.
+                            One row per room/night; a held row references the reservation or OTA
+                            channel holding it.</field>
+    </record>
+
+</odoo>

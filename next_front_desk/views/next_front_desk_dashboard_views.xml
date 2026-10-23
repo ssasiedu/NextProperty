@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Extend the reservation form: inventory tab + wizard-gated checkout button -->
+    <record id="view_next_reservation_form_front_desk" model="ir.ui.view">
+        <field name="name">next.reservation.form.front.desk</field>
+        <field name="model">next.reservation</field>
+        <field name="inherit_id" ref="next_base.view_next_reservation_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_check_out']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_cancel']" position="before">
+                <button name="action_open_checkout_wizard" string="Check Out" type="object"
+                        class="btn-primary" invisible="state != 'checked_in'"/>
+            </xpath>
+            <xpath expr="//sheet" position="inside">
+                <notebook>
+                    <page string="Guest Inventory">
+                        <field name="inventory_item_ids"/>
+                    </page>
+                </notebook>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Front Desk room dashboard: Kanban grouped by status, drag-and-drop reassignment -->
+    <record id="view_next_room_kanban_front_desk" model="ir.ui.view">
+        <field name="name">next.room.kanban.front.desk</field>
+        <field name="model">next.room</field>
+        <field name="inherit_id" ref="next_base.view_next_room_kanban"/>
+        <field name="arch" type="xml">
+            <xpath expr="//kanban" position="attributes">
+                <attribute name="group_create">false</attribute>
+                <attribute name="group_delete">false</attribute>
+                <attribute name="default_group_by">status</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_next_front_desk_dashboard" model="ir.actions.act_window">
+        <field name="name">Front Desk Dashboard</field>
+        <field name="res_model">next.room</field>
+        <field name="view_mode">kanban,list</field>
+        <field name="context">{'search_default_group_by_status': 1}</field>
+        <field name="help">Drag rooms between status columns to reassign, or open a room's
+                            active reservation to check in/out.</field>
+    </record>
+
+    <!-- Gantt-style "hybrid" view of reservations against rooms -->
+    <record id="view_next_reservation_gantt" model="ir.ui.view">
+        <field name="name">next.reservation.gantt.front.desk</field>
+        <field name="model">next.reservation</field>
+        <field name="arch" type="xml">
+            <gantt date_start="date_from" date_stop="date_to" default_group_by="room_ids" string="Room Schedule">
+                <field name="partner_id"/>
+                <field name="state"/>
+            </gantt>
+        </field>
+    </record>
+
+    <record id="action_next_front_desk_gantt" model="ir.actions.act_window">
+        <field name="name">Room Schedule (Gantt)</field>
+        <field name="res_model">next.reservation</field>
+        <field name="view_mode">gantt,list,form</field>
+        <field name="domain">[('state', 'not in', ('cancelled',))]</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Property Owners only ever see rooms tied to their own owner_id -->
+        <record id="rule_next_room_owner" model="ir.rule">
+            <field name="name">Property Owner: own rooms only</field>
+            <field name="model_id" ref="model_next_room"/>
+            <field name="domain_force">[('owner_id.user_ids', 'in', [user.id])]</field>
+            <field name="groups" eval="[(4, ref('group_next_property_owner'))]"/>
+        </record>
+
+        <record id="rule_next_property_owner" model="ir.rule">
+            <field name="name">Property Owner: own properties only</field>
+            <field name="model_id" ref="model_next_property"/>
+            <field name="domain_force">[('owner_ids.user_ids', 'in', [user.id])]</field>
+            <field name="groups" eval="[(4, ref('group_next_property_owner'))]"/>
+        </record>
+
+        <record id="rule_next_reservation_owner" model="ir.rule">
+            <field name="name">Property Owner: reservations for own rooms only</field>
+            <field name="model_id" ref="model_next_reservation"/>
+            <field name="domain_force">[('room_ids.owner_id.user_ids', 'in', [user.id])]</field>
+            <field name="groups" eval="[(4, ref('group_next_property_owner'))]"/>
+        </record>
+
+        <record id="rule_next_folio_owner" model="ir.rule">
+            <field name="name">Property Owner: folios for own rooms only</field>
+            <field name="model_id" ref="model_next_folio"/>
+            <field name="domain_force">[('reservation_id.room_ids.owner_id.user_ids', 'in', [user.id])]</field>
+            <field name="groups" eval="[(4, ref('group_next_property_owner'))]"/>
+        </record>
+
+        <!-- Internal staff: unrestricted on next_base models (scoping for
+             guests/portal is handled by the portal-specific controllers in
+             next_booking, which never expose the backend model access directly). -->
+        <record id="rule_next_room_internal" model="ir.rule">
+            <field name="name">Internal staff: all rooms</field>
+            <field name="model_id" ref="model_next_room"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
+    </data>
+</odoo>

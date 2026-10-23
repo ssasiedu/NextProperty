@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<template id="booking_step_property" name="Booking - Select Property">
+    <t t-call="website.layout">
+        <div class="container py-5">
+            <h1>Select a Property</h1>
+            <div class="row">
+                <t t-foreach="properties" t-as="prop">
+                    <div class="col-md-4 mb-3">
+                        <div class="card p-3">
+                            <h4><t t-esc="prop.name"/></h4>
+                            <p><t t-esc="prop.city"/></p>
+                            <a t-attf-href="/book/dates?property_id=#{prop.id}" class="btn btn-primary">Select</a>
+                        </div>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </t>
+</template>
+
+<template id="booking_step_dates" name="Booking - Select Dates">
+    <t t-call="website.layout">
+        <div class="container py-5">
+            <h1>Select Your Dates</h1>
+            <form action="/book/occupancy" method="get" class="row g-3">
+                <input type="hidden" name="property_id" t-att-value="property_id"/>
+                <div class="col-md-4">
+                    <label>Check-in</label>
+                    <input type="date" name="date_from" class="form-control" required="required"/>
+                </div>
+                <div class="col-md-4">
+                    <label>Check-out</label>
+                    <input type="date" name="date_to" class="form-control" required="required"/>
+                </div>
+                <div class="col-md-4 align-self-end">
+                    <button type="submit" class="btn btn-primary">Next</button>
+                </div>
+            </form>
+        </div>
+    </t>
+</template>
+
+<template id="booking_step_occupancy" name="Booking - Occupancy">
+    <t t-call="website.layout">
+        <div class="container py-5">
+            <h1>Who's Staying?</h1>
+            <form action="/book/availability" method="get" class="row g-3">
+                <input type="hidden" name="property_id" t-att-value="property_id"/>
+                <input type="hidden" name="date_from" t-att-value="date_from"/>
+                <input type="hidden" name="date_to" t-att-value="date_to"/>
+                <div class="col-md-3">
+                    <label>Adults</label>
+                    <input type="number" name="adults" min="1" value="2" class="form-control"/>
+                </div>
+                <div class="col-md-3">
+                    <label>Children</label>
+                    <input type="number" name="children" min="0" value="0" class="form-control"/>
+                </div>
+                <div class="col-md-3">
+                    <label>Rooms</label>
+                    <input type="number" name="rooms" min="1" value="1" class="form-control"/>
+                </div>
+                <div class="col-md-3 align-self-end">
+                    <button type="submit" class="btn btn-primary">Search Availability</button>
+                </div>
+            </form>
+        </div>
+    </t>
+</template>
+
+<template id="booking_step_availability" name="Booking - Availability Results">
+    <t t-call="website.layout">
+        <div class="container py-5">
+            <h1>Available Rooms</h1>
+            <div t-if="not results" class="alert alert-warning">No rooms available for these dates/occupancy.</div>
+            <div class="row">
+                <t t-foreach="results" t-as="r">
+                    <div class="col-md-4 mb-3">
+                        <div class="card p-3">
+                            <img t-if="r['room_type'].image_1920" t-attf-src="/web/image/next.room.type/#{r['room_type'].id}/image_1920" class="img-fluid mb-2"/>
+                            <h4><t t-esc="r['room_type'].name"/></h4>
+                            <p t-field="r['room_type'].description"/>
+                            <p><strong>Total: <t t-esc="r['price']"/></strong></p>
+                            <a t-attf-href="/book/select/#{r['room_type'].id}?property_id=#{property_id}&amp;date_from=#{date_from}&amp;date_to=#{date_to}&amp;adults=#{adults}&amp;children=#{children}&amp;rooms=#{rooms}"
+                               class="btn btn-primary">Select</a>
+                        </div>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </t>
+</template>
+
+<template id="booking_step_confirm" name="Booking - Confirm &amp; Pay">
+    <t t-call="website.layout">
+        <div class="container py-5">
+            <h1>Confirm Your Booking</h1>
+            <p><t t-esc="room_type.name"/> &#8212; <t t-esc="date_from"/> to <t t-esc="date_to"/></p>
+            <p>Total: <strong><t t-esc="price"/></strong></p>
+            <form action="/book/confirm" method="post">
+                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                <input type="hidden" name="room_type_id" t-att-value="room_type.id"/>
+                <input type="hidden" name="property_id" t-att-value="property_id"/>
+                <input type="hidden" name="date_from" t-att-value="date_from"/>
+                <input type="hidden" name="date_to" t-att-value="date_to"/>
+                <input type="hidden" name="adults" t-att-value="adults"/>
+                <input type="hidden" name="children" t-att-value="children"/>
+                <input type="hidden" name="rooms" t-att-value="rooms"/>
+                <button type="submit" class="btn btn-success btn-lg">Confirm &amp; Pay</button>
+            </form>
+        </div>
+    </t>
+</template>
+</odoo>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_next_service_request_list" model="ir.ui.view">
+        <field name="name">next.service.request.list</field>
+        <field name="model">next.service.request</field>
+        <field name="arch" type="xml">
+            <list decoration-success="status=='resolved'" decoration-info="status=='submitted'">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="request_type"/>
+                <field name="status"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_next_service_request_form" model="ir.ui.view">
+        <field name="name">next.service.request.form</field>
+        <field name="model">next.service.request</field>
+        <field name="arch" type="xml">
+            <form string="Service Request">
+                <header>
+                    <button name="action_acknowledge" string="Acknowledge" type="object" invisible="status != 'submitted'"/>
+                    <button name="action_start" string="Start" type="object" invisible="status != 'acknowledged'"/>
+                    <button name="action_resolve" string="Resolve" type="object" invisible="status != 'in_progress'"/>
+                    <field name="status" widget="statusbar" statusbar_visible="submitted,acknowledged,in_progress,resolved"/>
+                </header>
+                <sheet>
+                    <div class="oe_title"><h1><field name="name"/></h1></div>
+                    <group>
+                        <field name="reservation_id"/>
+                        <field name="partner_id"/>
+                        <field name="request_type"/>
+                    </group>
+                    <field name="description"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_next_service_request" model="ir.actions.act_window">
+        <field name="name">Service Requests</field>
+        <field name="res_model">next.service.request</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

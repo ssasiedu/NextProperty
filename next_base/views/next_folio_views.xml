@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_next_folio_form" model="ir.ui.view">
+        <field name="name">next.folio.form</field>
+        <field name="model">next.folio</field>
+        <field name="arch" type="xml">
+            <form string="Folio">
+                <header>
+                    <button name="action_create_invoice" string="Create Invoice" type="object"
+                            class="btn-primary" invisible="state != 'finalized'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="open,finalized,invoiced"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <field name="reservation_id"/>
+                        <field name="partner_id"/>
+                        <field name="property_id"/>
+                        <field name="move_id" invisible="not move_id"/>
+                    </group>
+                    <field name="line_ids">
+                        <list editable="bottom">
+                            <field name="description"/>
+                            <field name="line_type"/>
+                            <field name="quantity"/>
+                            <field name="amount"/>
+                        </list>
+                    </field>
+                    <group class="oe_subtotal_footer">
+                        <field name="amount_total"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_next_folio_list" model="ir.ui.view">
+        <field name="name">next.folio.list</field>
+        <field name="model">next.folio</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="property_id"/>
+                <field name="amount_total"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_next_folio" model="ir.actions.act_window">
+        <field name="name">Folios</field>
+        <field name="res_model">next.folio</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

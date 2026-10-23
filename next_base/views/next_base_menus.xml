@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_next_root" name="NEXT Property Mgmt" sequence="5" web_icon="next_base,static/description/icon.png"/>
+
+    <menuitem id="menu_next_config" name="Configuration" parent="menu_next_root" sequence="90"
+              groups="group_next_manager"/>
+
+    <menuitem id="menu_next_property" name="Properties" parent="menu_next_config"
+              action="action_next_property" sequence="10"/>
+    <menuitem id="menu_next_room_type" name="Room Types" parent="menu_next_config"
+              action="action_next_room_type" sequence="20"/>
+    <menuitem id="menu_next_room_amenity" name="Amenities" parent="menu_next_config"
+              action="action_next_room_amenity" sequence="30"/>
+
+    <menuitem id="menu_next_rooms_root" name="Rooms" parent="menu_next_root"
+              action="action_next_room" sequence="10"/>
+    <menuitem id="menu_next_reservations_root" name="Reservations" parent="menu_next_root"
+              action="action_next_reservation" sequence="20"/>
+    <menuitem id="menu_next_folios_root" name="Folios" parent="menu_next_root"
+              action="action_next_folio" sequence="30" groups="group_next_front_desk,group_next_accountant,group_next_manager"/>
+
+</odoo>

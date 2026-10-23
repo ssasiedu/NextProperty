@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_next_reservation_form" model="ir.ui.view">
+        <field name="name">next.reservation.form</field>
+        <field name="model">next.reservation</field>
+        <field name="arch" type="xml">
+            <form string="Reservation">
+                <header>
+                    <button name="action_confirm" string="Confirm" type="object"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_check_in" string="Check In" type="object"
+                            class="btn-primary" invisible="state != 'confirmed'"/>
+                    <button name="action_check_out" string="Check Out" type="object"
+                            class="btn-primary" invisible="state != 'checked_in'"/>
+                    <button name="action_cancel" string="Cancel" type="object"
+                            invisible="state in ('cancelled', 'checked_in', 'checked_out')"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,confirmed,checked_in,checked_out"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="property_id"/>
+                            <field name="partner_id"/>
+                            <field name="room_ids" widget="many2many_tags"/>
+                        </group>
+                        <group>
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                            <field name="nights"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Occupancy">
+                            <field name="adults"/>
+                            <field name="children"/>
+                            <field name="room_count_requested"/>
+                        </group>
+                        <group string="Source">
+                            <field name="booking_source"/>
+                            <field name="ota_channel" invisible="booking_source != 'ota'"/>
+                            <field name="ota_reference" invisible="booking_source != 'ota'"/>
+                        </group>
+                    </group>
+                    <group string="Folio">
+                        <field name="folio_id"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_next_reservation_list" model="ir.ui.view">
+        <field name="name">next.reservation.list</field>
+        <field name="model">next.reservation</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="state=='cancelled'">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="property_id"/>
+                <field name="date_from"/>
+                <field name="date_to"/>
+                <field name="booking_source"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_next_reservation_calendar" model="ir.ui.view">
+        <field name="name">next.reservation.calendar</field>
+        <field name="model">next.reservation</field>
+        <field name="arch" type="xml">
+            <calendar date_start="date_from" date_stop="date_to" string="Reservations" color="property_id">
+                <field name="partner_id"/>
+            </calendar>
+        </field>
+    </record>
+
+    <record id="action_next_reservation" model="ir.actions.act_window">
+        <field name="name">Reservations</field>
+        <field name="res_model">next.reservation</field>
+        <field name="view_mode">list,calendar,form</field>
+    </record>
+
+</odoo>
