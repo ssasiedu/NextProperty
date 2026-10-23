@@ -78,7 +78,7 @@ class NextSmsTemplate(models.Model):
         network call asynchronously (never blocks the caller's transaction).
         Returns the created next.sms.log record (or None if skipped).
         """
-        if not partner or not partner.phone and not partner.mobile:
+        if not partner or not partner.phone:
             return None
         if not partner.sms_opt_in:
             return None
@@ -89,7 +89,7 @@ class NextSmsTemplate(models.Model):
 
         placeholders = placeholders or {}
         message = self._render(template.body, placeholders)
-        to_number = partner.mobile or partner.phone
+        to_number = partner.phone
 
         log = self.env['next.sms.log'].create({
             'partner_id': partner.id,
