@@ -14,13 +14,7 @@
             <field name="name">NEXT Channel Manager: Extend Availability Ledger Horizon</field>
             <field name="model_id" ref="model_next_availability_ledger"/>
             <field name="state">code</field>
-            <field name="code">
-room_ids = env['next.room'].search([]).ids
-from odoo import fields
-d_from = fields.Date.today()
-d_to = fields.Date.add(d_from, days=365)
-model.ensure_rows(room_ids, d_from, d_to)
-            </field>
+            <field name="code">model._cron_extend_horizon()</field>
             <field name="interval_number">1</field>
             <field name="interval_type">days</field>
             <field name="active">True</field>
