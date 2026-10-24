@@ -29,6 +29,20 @@ class NextFolio(models.Model):
 
     move_id = fields.Many2one('account.move', string='Invoice', copy=False, readonly=True)
 
+    # Guest sign-off at checkout: every charge on this folio (room, POS,
+    # damage/discrepancy) is shown on the printed bill (report_next_folio)
+    # for the guest to sign - either digitally here via the signature pad
+    # widget, or on the printed paper copy.
+    signature = fields.Binary(string='Guest Signature', copy=False, attachment=True)
+    signed_name = fields.Char(string='Signed By', copy=False,
+                               help='Typed/confirmed name of the guest (or whoever signs) for the record.')
+    signed_date = fields.Datetime(string='Signed On', readonly=True, copy=False)
+
+    def write(self, vals):
+        if vals.get('signature') and not vals.get('signed_date'):
+            vals = dict(vals, signed_date=fields.Datetime.now())
+        return super().write(vals)
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:

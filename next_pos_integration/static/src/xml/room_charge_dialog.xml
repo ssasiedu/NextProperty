@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="next_pos_integration.RoomChargeDialog">
+        <Dialog title="'Bill to Room'">
+            <div class="d-flex flex-column" style="min-width: 420px;">
+                <input type="text"
+                       class="form-control form-control-lg mb-3"
+                       placeholder="Search by room number or guest name..."
+                       t-on-input="onInput"
+                       autofocus="autofocus"/>
+
+                <div t-if="state.loading" class="text-center text-muted py-3">
+                    Searching...
+                </div>
+
+                <div t-elif="!state.results.length and state.searched" class="text-center text-muted py-3">
+                    <t t-esc="noResultsMessage"/>
+                </div>
+
+                <div t-else="" class="list-group" style="max-height: 320px; overflow-y: auto;">
+                    <button t-foreach="state.results" t-as="reservation" t-key="reservation.id"
+                            type="button"
+                            class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                            t-on-click="() => this.selectReservation(reservation)">
+                        <span>
+                            <strong t-esc="reservation.guest_name"/>
+                            <span class="text-muted"> - Room <t t-esc="reservation.rooms"/></span>
+                        </span>
+                        <span class="badge text-bg-secondary" t-esc="reservation.property_name"/>
+                    </button>
+                </div>
+            </div>
+            <t t-set-slot="footer">
+                <button class="btn btn-secondary" t-on-click="() => this.props.close()">Cancel</button>
+            </t>
+        </Dialog>
+    </t>
+</templates>

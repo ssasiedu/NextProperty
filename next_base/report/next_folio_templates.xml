@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="report_next_folio_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2>Folio / Final Bill - <span t-field="doc.name"/></h2>
+
+                        <div class="row mt-3 mb-4">
+                            <div class="col-6">
+                                <strong>Guest</strong><br/>
+                                <span t-field="doc.partner_id.name"/><br/>
+                                <span t-if="doc.partner_id.phone" t-field="doc.partner_id.phone"/>
+                            </div>
+                            <div class="col-6">
+                                <strong>Property</strong><br/>
+                                <span t-field="doc.property_id.name"/><br/>
+                                <strong>Stay</strong><br/>
+                                <span t-field="doc.reservation_id.date_from"/> &#8594;
+                                <span t-field="doc.reservation_id.date_to"/>
+                                (<span t-field="doc.reservation_id.nights"/> night(s))
+                                <br/>
+                                Room(s):
+                                <span t-esc="', '.join(doc.reservation_id.room_ids.mapped('name')) or '-'"/>
+                            </div>
+                        </div>
+
+                        <table class="table table-sm o_main_table">
+                            <thead>
+                                <tr>
+                                    <th>Description</th>
+                                    <th class="text-center">Type</th>
+                                    <th class="text-end">Qty</th>
+                                    <th class="text-end">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="doc.line_ids" t-as="line">
+                                    <td><span t-field="line.description"/></td>
+                                    <td class="text-center"><span t-field="line.line_type"/></td>
+                                    <td class="text-end"><span t-field="line.quantity"/></td>
+                                    <td class="text-end">
+                                        <span t-field="line.amount"
+                                              t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3" class="text-end"><strong>Total</strong></td>
+                                    <td class="text-end">
+                                        <strong>
+                                            <span t-field="doc.amount_total"
+                                                  t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                                        </strong>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <div class="mt-5">
+                            <p>
+                                I confirm the above charges are correct and accept responsibility
+                                for settling the total shown.
+                            </p>
+                            <div class="row mt-4">
+                                <div class="col-6">
+                                    <div t-if="doc.signature">
+                                        <img t-att-src="image_data_uri(doc.signature)"
+                                             style="max-height: 80px; max-width: 220px;"/>
+                                        <div style="border-top: 1px solid #000; width: 250px;"/>
+                                        <span>
+                                            Guest Signature
+                                            <t t-if="doc.signed_name"> - <span t-field="doc.signed_name"/></t>
+                                        </span>
+                                        <br/>
+                                        <span t-if="doc.signed_date" t-field="doc.signed_date"/>
+                                    </div>
+                                    <div t-else="">
+                                        <div style="border-top: 1px solid #000; width: 250px; margin-top: 50px;"/>
+                                        <span>Guest Signature</span>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div style="border-top: 1px solid #000; width: 150px; margin-top: 50px;"/>
+                                    <span>Date</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>
