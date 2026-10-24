@@ -6,6 +6,9 @@
         <field name="model">next.sms.provider</field>
         <field name="arch" type="xml">
             <form string="SMS Provider">
+                <header>
+                    <button name="action_open_test_wizard" string="Send Test SMS" type="object" class="btn-primary"/>
+                </header>
                 <sheet>
                     <group>
                         <group>

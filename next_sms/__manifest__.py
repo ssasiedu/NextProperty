@@ -34,6 +34,7 @@ NEXT Property Management - SMS
         'data/next_sms_templates.xml',
         'data/next_sms_cron.xml',
         'views/next_sms_provider_views.xml',
+        'views/next_sms_test_wizard_views.xml',
         'views/next_sms_template_views.xml',
         'views/next_sms_log_views.xml',
         'views/next_sms_dashboard_views.xml',

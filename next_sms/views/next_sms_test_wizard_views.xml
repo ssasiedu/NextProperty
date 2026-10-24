@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_next_sms_test_wizard_form" model="ir.ui.view">
+        <field name="name">next.sms.test.wizard.form</field>
+        <field name="model">next.sms.test.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Test SMS Gateway">
+                <group>
+                    <field name="provider_id"/>
+                    <field name="to_number" placeholder="+233241234567"/>
+                    <field name="message"/>
+                </group>
+                <div class="alert alert-success mt-2" role="alert" invisible="result_status != 'sent'">
+                    <strong>Sent.</strong>
+                    <field name="result_detail" readonly="1" nolabel="1"/>
+                </div>
+                <div class="alert alert-danger mt-2" role="alert" invisible="result_status != 'failed'">
+                    <strong>Failed.</strong>
+                    <field name="result_detail" readonly="1" nolabel="1"/>
+                </div>
+                <footer>
+                    <button name="action_send_test" string="Send Test SMS" type="object" class="btn-primary"/>
+                    <button string="Close" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_next_sms_test_wizard" model="ir.actions.act_window">
+        <field name="name">Test SMS Gateway</field>
+        <field name="res_model">next.sms.test.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

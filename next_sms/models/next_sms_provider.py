@@ -26,13 +26,30 @@ class NextSmsProvider(models.Model):
                                 compute='_compute_callback_url', store=True, readonly=False)
     active = fields.Boolean(default=True)
 
-    api_base_url = fields.Char(default='https://sms.hubtel.com/v1/messages/send')
+    api_base_url = fields.Char(default='https://smsc.hubtel.com/v1/messages/send',
+                                help="Hubtel's Quick Send (GET) endpoint. Host is smsc.hubtel.com, "
+                                     "not sms.hubtel.com - double-check this if messages are failing.")
 
     def _compute_callback_url(self):
         base = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
         for rec in self:
             if not rec.callback_url:
                 rec.callback_url = '%s/next_sms/hubtel/delivery_report' % base
+
+    def action_open_test_wizard(self):
+        """"Send Test SMS" button on the provider form - opens the test
+        wizard pre-filled with this provider so a manager can confirm
+        credentials/host/sender ID work before relying on it for real
+        guest/owner notifications."""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Test SMS Gateway',
+            'res_model': 'next.sms.test.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_provider_id': self.id},
+        }
 
     @api.model
     def _get_provider(self, property_id=False, company=None):
@@ -55,7 +72,17 @@ class NextSmsProvider(models.Model):
         return {'status': 'failed', 'error': 'Unsupported provider_type: %s' % self.provider_type}
 
     def _send_via_hubtel(self, to_number, message):
+        """Hubtel "Quick Send" (GET, no auth header) - see
+        https://developers.hubtel.com SMS API docs. Response on success is
+        JSON: {rate, messageId, status: 0, statusDescription, networkId}.
+        A non-zero `status`, a non-200 HTTP code, or a non-JSON body (e.g. an
+        HTML error page from a wrong host) are all treated as failures."""
         import requests
+        if not self.client_id or not self.client_secret or not self.sender_id:
+            return {'status': 'failed',
+                    'error': 'Missing client_id/client_secret/sender_id on SMS provider "%s".' % self.name}
+        if not self.api_base_url:
+            return {'status': 'failed', 'error': 'SMS provider "%s" has no API base URL configured.' % self.name}
         try:
             resp = requests.get(self.api_base_url, params={
                 'clientid': self.client_id,
@@ -63,10 +90,24 @@ class NextSmsProvider(models.Model):
                 'from': self.sender_id,
                 'to': to_number,
                 'content': message,
-            }, timeout=10)
+            }, timeout=15)
+        except Exception as exc:  # noqa: broad-except - network/DNS/timeout errors
+            return {'status': 'failed', 'error': 'Could not reach Hubtel: %s' % exc}
+
+        try:
             data = resp.json() if resp.content else {}
-            if resp.status_code == 200 and data.get('status') == 0:
-                return {'status': 'sent', 'provider_message_id': data.get('messageId')}
-            return {'status': 'failed', 'error': str(data)}
-        except Exception as exc:  # noqa: broad-except - never let a gateway outage raise
-            return {'status': 'failed', 'error': str(exc)}
+        except ValueError:
+            # Non-JSON body usually means the wrong host/URL (e.g. an HTML
+            # error page) rather than a real Hubtel API error.
+            return {'status': 'failed',
+                    'error': 'Hubtel returned a non-JSON response (HTTP %s). Double-check api_base_url. '
+                              'Body (truncated): %s' % (resp.status_code, resp.text[:300])}
+
+        if resp.status_code == 200 and data.get('status') == 0:
+            return {
+                'status': 'sent',
+                'provider_message_id': data.get('messageId'),
+                'cost': data.get('rate'),
+            }
+        return {'status': 'failed',
+                'error': 'HTTP %s: %s' % (resp.status_code, data.get('statusDescription') or data)}

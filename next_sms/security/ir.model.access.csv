@@ -5,3 +5,4 @@ access_next_sms_template_user,next.sms.template.user,model_next_sms_template,bas
 access_next_sms_log_manager,next.sms.log.manager,model_next_sms_log,next_base.group_next_manager,1,1,1,0
 access_next_sms_log_user,next.sms.log.user,model_next_sms_log,base.group_user,1,0,1,0
 access_next_sms_queue_manager,next.sms.queue.manager,model_next_sms_queue,next_base.group_next_manager,1,1,1,1
+access_next_sms_test_wizard_manager,next.sms.test.wizard.manager,model_next_sms_test_wizard,next_base.group_next_manager,1,1,1,1
