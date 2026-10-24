@@ -10,10 +10,16 @@
                    Any shortfall will be charged to the guest's folio automatically.</p>
                 <field name="reservation_id" readonly="1" invisible="1"/>
                 <field name="line_ids">
-                    <list editable="bottom">
+                    <!-- create/delete="0": this list only lets staff adjust
+                         quantity_returned on the items default_get already
+                         populated from the reservation - it is not meant to
+                         let staff add arbitrary new lines, which would have
+                         no inventory_item_id (required, hidden) and fail
+                         validation on save. -->
+                    <list editable="bottom" create="0" delete="0">
                         <field name="inventory_item_id" readonly="1" column_invisible="True"/>
-                        <field name="name"/>
-                        <field name="quantity_issued"/>
+                        <field name="name" readonly="1"/>
+                        <field name="quantity_issued" readonly="1"/>
                         <field name="quantity_returned"/>
                     </list>
                 </field>
