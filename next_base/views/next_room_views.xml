@@ -58,6 +58,7 @@
         <field name="model">next.room</field>
         <field name="arch" type="xml">
             <kanban default_group_by="status">
+                <field name="status_color"/>
                 <templates>
                     <t t-name="card">
                         <div t-attf-style="border-left: 4px solid #{record.status_color.raw_value}; padding-left: 6px;">
