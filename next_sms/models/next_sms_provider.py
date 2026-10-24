@@ -103,7 +103,9 @@ class NextSmsProvider(models.Model):
                     'error': 'Hubtel returned a non-JSON response (HTTP %s). Double-check api_base_url. '
                               'Body (truncated): %s' % (resp.status_code, resp.text[:300])}
 
-        if resp.status_code == 200 and data.get('status') == 0:
+        # Hubtel returns HTTP 201 (not 200) on a successful send - the real
+        # success signal is `status: 0` in the JSON body. Accept any 2xx.
+        if resp.ok and data.get('status') == 0:
             return {
                 'status': 'sent',
                 'provider_message_id': data.get('messageId'),
