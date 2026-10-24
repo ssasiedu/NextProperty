@@ -10,4 +10,6 @@
               action="action_next_sms_template" sequence="30"/>
     <menuitem id="menu_next_sms_provider" name="Providers" parent="menu_next_sms_root"
               action="action_next_sms_provider" sequence="40"/>
+    <menuitem id="menu_next_sms_test_wizard" name="Test SMS Gateway" parent="menu_next_sms_root"
+              action="action_next_sms_test_wizard" sequence="50"/>
 </odoo>

@@ -58,6 +58,7 @@ class NextSmsLogDispatch(models.Model):
             log.write({
                 'status': 'sent',
                 'provider_message_id': result.get('provider_message_id'),
+                'cost': result.get('cost') or 0.0,
                 'sent_date': fields.Datetime.now(),
             })
         else:
