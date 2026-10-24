@@ -46,8 +46,12 @@ class NextCheckoutReconciliationWizard(models.TransientModel):
             # of inventory discrepancies at checkout (see next_sms README).
 
         reservation.write({'checkout_reconciled': True})
-        reservation.action_check_out()
-        return {'type': 'ir.actions.act_window_close'}
+        reservation.action_check_out()  # also finalizes the folio (next.folio.action_finalize)
+
+        # Drop staff straight onto the printable/signable final bill - every
+        # charge (room + POS "bill to room" orders + this reconciliation's
+        # own discrepancy line, if any) is already on it by this point.
+        return self.env.ref('next_base.action_report_next_folio').report_action(reservation.folio_id)
 
 
 class NextCheckoutReconciliationWizardLine(models.TransientModel):

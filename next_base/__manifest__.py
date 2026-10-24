@@ -30,6 +30,8 @@ All other NEXT Property Management modules depend on this one.
         'views/next_room_type_views.xml',
         'views/next_room_views.xml',
         'views/next_reservation_views.xml',
+        'report/next_folio_templates.xml',
+        'report/next_folio_reports.xml',
         'views/next_folio_views.xml',
         'views/res_partner_views.xml',
         'views/next_base_menus.xml',

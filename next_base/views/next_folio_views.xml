@@ -9,6 +9,8 @@
                 <header>
                     <button name="action_create_invoice" string="Create Invoice" type="object"
                             class="btn-primary" invisible="state != 'finalized'"/>
+                    <button name="%(action_report_next_folio)d" string="Print Folio" type="action"
+                            class="btn-secondary"/>
                     <field name="state" widget="statusbar" statusbar_visible="open,finalized,invoiced"/>
                 </header>
                 <sheet>
@@ -31,6 +33,12 @@
                     </field>
                     <group class="oe_subtotal_footer">
                         <field name="amount_total"/>
+                    </group>
+                    <group string="Guest Sign-Off" invisible="state == 'open'">
+                        <field name="signed_name" placeholder="Guest name"/>
+                        <field name="signature" widget="signature"
+                               options="{'full_name': 'signed_name'}"/>
+                        <field name="signed_date" readonly="1" invisible="not signed_date"/>
                     </group>
                 </sheet>
             </form>
