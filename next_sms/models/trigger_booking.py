@@ -25,6 +25,18 @@ class NextReservation(models.Model):
                                    placeholders=_reservation_placeholders(rec), related_record=rec)
         return res
 
+    def action_record_deposit_payment(self, reference=None):
+        res = super().action_record_deposit_payment(reference=reference)
+        Template = self.env['next.sms.template']
+        for rec in self:
+            if rec.deposit_paid:
+                Template.send_trigger('booking_deposit_received', rec.partner_id,
+                                       property_id=rec.property_id.id,
+                                       placeholders=dict(_reservation_placeholders(rec),
+                                                          deposit_amount=rec.deposit_amount),
+                                       related_record=rec)
+        return res
+
     def action_cancel(self):
         res = super().action_cancel()
         Template = self.env['next.sms.template']

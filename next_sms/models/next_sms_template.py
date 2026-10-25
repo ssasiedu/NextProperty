@@ -10,6 +10,7 @@ TRIGGER_CODES = [
     ('booking_confirmation', 'Booking: Confirmation / Payment Received'),
     ('booking_reminder', 'Booking: Reminder (24h pre check-in)'),
     ('booking_cancellation', 'Booking: Cancellation Confirmation'),
+    ('booking_deposit_received', 'Booking: Deposit/Advance Payment Received'),
     ('checkin_complete', 'Front Desk: Check-in Complete'),
     ('checkout_complete', 'Front Desk: Checkout Complete + Final Folio'),
     ('checkout_discrepancy', 'Front Desk: Inventory Discrepancy at Checkout'),

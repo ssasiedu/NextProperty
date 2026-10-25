@@ -7,6 +7,8 @@
         <field name="arch" type="xml">
             <form string="Reservation">
                 <header>
+                    <button name="action_record_deposit_payment" string="Record Deposit Payment" type="object"
+                            invisible="state != 'draft' or not deposit_required or deposit_paid"/>
                     <button name="action_confirm" string="Confirm" type="object"
                             class="btn-primary" invisible="state != 'draft'"/>
                     <button name="action_check_in" string="Check In" type="object"
@@ -44,6 +46,20 @@
                             <field name="booking_source"/>
                             <field name="ota_channel" invisible="booking_source != 'ota'"/>
                             <field name="ota_reference" invisible="booking_source != 'ota'"/>
+                        </group>
+                    </group>
+                    <group string="Deposit / Advance Payment">
+                        <group>
+                            <field name="deposit_required"/>
+                            <field name="deposit_amount" invisible="not deposit_required"/>
+                            <field name="deposit_payment_reference"
+                                   invisible="not deposit_required or deposit_paid"
+                                   placeholder="Mobile money transaction id, card reference, receipt number..."/>
+                        </group>
+                        <group invisible="not deposit_paid">
+                            <field name="deposit_paid"/>
+                            <field name="deposit_received_date" readonly="1"/>
+                            <field name="deposit_received_by" readonly="1"/>
                         </group>
                     </group>
                     <group string="Folio">

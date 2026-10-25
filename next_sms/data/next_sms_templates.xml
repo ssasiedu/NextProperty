@@ -23,6 +23,13 @@
             <field name="email_subject">Your booking at {property_name} has been cancelled</field>
             <field name="email_body"><![CDATA[<p>Hi {guest_name},</p><p>Your booking at <strong>{property_name}</strong> has been cancelled.</p>]]></field>
         </record>
+        <record id="tmpl_booking_deposit_received" model="next.sms.template">
+            <field name="name">Deposit Received</field>
+            <field name="trigger_code">booking_deposit_received</field>
+            <field name="body">Hi {guest_name}, we've received your deposit of {deposit_amount} for {property_name}. Your booking is now confirmed.</field>
+            <field name="email_subject">Deposit received - your booking at {property_name} is confirmed</field>
+            <field name="email_body"><![CDATA[<p>Hi {guest_name},</p><p>We've received your deposit of <strong>{deposit_amount}</strong> for <strong>{property_name}</strong>. Your booking for {date_from} to {date_to} is now confirmed.</p>]]></field>
+        </record>
         <record id="tmpl_checkin_complete" model="next.sms.template">
             <field name="name">Check-in Welcome</field>
             <field name="trigger_code">checkin_complete</field>
