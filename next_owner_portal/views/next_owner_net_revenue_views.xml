@@ -84,7 +84,7 @@
                 <filter string="Paid - Awaiting Confirmation" name="filter_awaiting"
                         domain="[('payment_state', '=', 'paid')]"/>
                 <filter string="Confirmed" name="filter_confirmed" domain="[('payment_state', '=', 'confirmed')]"/>
-                <group expand="0" string="Group By">
+                <group name="group_by">
                     <filter string="Property" name="groupby_property" context="{'group_by': 'property_id'}"/>
                     <filter string="Payment Status" name="groupby_payment_state" context="{'group_by': 'payment_state'}"/>
                 </group>
