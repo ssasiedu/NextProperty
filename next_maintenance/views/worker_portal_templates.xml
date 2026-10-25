@@ -6,6 +6,9 @@
         <t t-if="request.env.user.has_group('next_base.group_next_maintenance_officer')" t-call="portal.portal_docs_entry">
             <t t-set="title">My Maintenance Tickets</t>
             <t t-set="url" t-value="'/my/worker/maintenance'"/>
+            <!-- see next_housekeeping's version of this template for why config_card
+                 is required here - without it the card stays permanently hidden. -->
+            <t t-set="config_card" t-value="True"/>
         </t>
     </xpath>
 </template>

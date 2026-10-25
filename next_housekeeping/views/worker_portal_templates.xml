@@ -6,6 +6,11 @@
         <t t-if="request.env.user.has_group('next_base.group_next_housekeeping')" t-call="portal.portal_docs_entry">
             <t t-set="title">My Housekeeping Tasks</t>
             <t t-set="url" t-value="'/my/worker/housekeeping'"/>
+            <!-- portal.portal_docs_entry hides every card (d-none) unless either
+                 placeholder_count (an async JS-loaded counter) or config_card is
+                 set - a card with neither, as this one originally had, never
+                 appears at all. config_card shows it immediately, no count badge. -->
+            <t t-set="config_card" t-value="True"/>
         </t>
     </xpath>
 </template>
