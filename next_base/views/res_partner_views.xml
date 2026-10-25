@@ -11,6 +11,7 @@
                     <group>
                         <field name="is_property_owner"/>
                         <field name="sms_opt_in"/>
+                        <field name="email_opt_in"/>
                     </group>
                     <group string="Owned Properties" invisible="not is_property_owner">
                         <field name="owned_property_ids" widget="many2many_tags" nolabel="1"/>

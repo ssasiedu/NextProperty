@@ -41,6 +41,12 @@ class NextSmsTemplate(models.Model):
                                             '{date_from}, {date_to}, {amount}.')
     active = fields.Boolean(default=True, string='Enabled')
 
+    # Email is sent alongside the SMS for the same trigger whenever both are
+    # filled in. Leave email_subject blank to send SMS only for this trigger.
+    email_subject = fields.Char(string='Email Subject')
+    email_body = fields.Html(string='Email Body', sanitize=False,
+                              help='Same {placeholder} tokens as the SMS body. HTML is allowed.')
+
     _trigger_property_uniq = models.Constraint(
         'unique(trigger_code, property_id)',
         'Only one template per trigger per property (or global).',
@@ -73,14 +79,18 @@ class NextSmsTemplate(models.Model):
                 related_record=reservation,
             )
 
-        Resolves the enabled template for (trigger_code, property), checks
-        `partner.sms_opt_in`, renders the body, and queues the actual
-        network call asynchronously (never blocks the caller's transaction).
-        Returns the created next.sms.log record (or None if skipped).
+        Resolves the enabled template for (trigger_code, property) and sends
+        BOTH channels configured on it, independently of each other:
+        - SMS, if `partner.phone` is set and `partner.sms_opt_in` is True -
+          queued asynchronously as before, never blocking the caller.
+        - Email, if the template has an `email_subject` filled in and
+          `partner.email` is set and `partner.email_opt_in` is True - sent
+          via Odoo's own outgoing-mail queue (so it never blocks either).
+        One channel missing/opted-out/unconfigured never prevents the other.
+        Returns the created next.sms.log record (or None if no SMS was sent) -
+        existing callers that only check the SMS log are unaffected.
         """
-        if not partner or not partner.phone:
-            return None
-        if not partner.sms_opt_in:
+        if not partner:
             return None
 
         template = self._get_template(trigger_code, property_id=property_id)
@@ -88,18 +98,33 @@ class NextSmsTemplate(models.Model):
             return None
 
         placeholders = placeholders or {}
-        message = self._render(template.body, placeholders)
-        to_number = partner.phone
+        log = None
 
-        log = self.env['next.sms.log'].create({
-            'partner_id': partner.id,
-            'property_id': property_id or False,
-            'trigger_code': trigger_code,
-            'to_number': to_number,
-            'message': message,
-            'status': 'queued',
-            'related_model': related_record._name if related_record else False,
-            'related_res_id': related_record.id if related_record else False,
-        })
-        self.env['next.sms.queue']._enqueue(log)
+        if partner.phone and partner.sms_opt_in:
+            message = self._render(template.body, placeholders)
+            log = self.env['next.sms.log'].create({
+                'partner_id': partner.id,
+                'property_id': property_id or False,
+                'trigger_code': trigger_code,
+                'to_number': partner.phone,
+                'message': message,
+                'status': 'queued',
+                'related_model': related_record._name if related_record else False,
+                'related_res_id': related_record.id if related_record else False,
+            })
+            self.env['next.sms.queue']._enqueue(log)
+
+        if template.email_subject and partner.email and partner.email_opt_in:
+            subject = self._render(template.email_subject, placeholders)
+            body_html = self._render(template.email_body or '', placeholders)
+            # Left in the default 'outgoing' state, not .send() here - Odoo's
+            # own "Mail: Email Queue Manager" cron delivers it, so (like the
+            # SMS path above) this never blocks the caller's transaction.
+            self.env['mail.mail'].sudo().create({
+                'subject': subject,
+                'body_html': body_html,
+                'email_to': partner.email,
+                'auto_delete': False,
+            })
+
         return log
