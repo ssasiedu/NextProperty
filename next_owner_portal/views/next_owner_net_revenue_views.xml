@@ -85,7 +85,6 @@
                         domain="[('payment_state', '=', 'paid')]"/>
                 <filter string="Confirmed" name="filter_confirmed" domain="[('payment_state', '=', 'confirmed')]"/>
                 <group expand="0" string="Group By">
-                    <filter string="Owner" name="groupby_owner" context="{'group_by': 'owner_ids'}"/>
                     <filter string="Property" name="groupby_property" context="{'group_by': 'property_id'}"/>
                     <filter string="Payment Status" name="groupby_payment_state" context="{'group_by': 'payment_state'}"/>
                 </group>
@@ -106,7 +105,7 @@
         <field name="view_mode">list,form</field>
         <field name="domain">[('state', '=', 'published'), ('payment_state', '!=', 'confirmed')]</field>
         <field name="search_view_id" ref="view_next_owner_net_revenue_search"/>
-        <field name="context">{'search_default_groupby_owner': 1}</field>
+        <field name="context">{'search_default_groupby_property': 1}</field>
         <field name="help">Every published statement that has not yet been confirmed as received by its
                             owner - mark one as paid once the transfer is sent, then wait for the owner
                             to confirm receipt from their own portal.</field>
