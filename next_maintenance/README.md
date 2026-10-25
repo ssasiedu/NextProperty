@@ -4,7 +4,7 @@ Repair/fault request management, built on Odoo's native Maintenance app.
 
 ## Depends on
 `next_base`, `next_booking` (for guest service-request escalation),
-`maintenance`.
+`maintenance`, `portal`.
 
 ## Provides
 - Extends `maintenance.request` (does **not** reinvent a parallel model)
@@ -21,3 +21,9 @@ Repair/fault request management, built on Odoo's native Maintenance app.
 - Escalation: `next.service.request.action_acknowledge()` is extended so a
   `fault` request automatically creates a linked `maintenance.request`
   ticket with `raised_by_type = 'guest'`.
+- **Worker self-service portal** (`/my/worker/maintenance`): same shape as
+  next_housekeeping's - `group_next_maintenance_officer` is PORTAL-tier,
+  so a technician gets this page (ticket counts, date filter, Start/
+  Resolve buttons) instead of a full internal-user backend account.
+  `group_next_maintenance_supervisor` additionally implies
+  `base.group_user` for anyone who needs the real backend.

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<template id="portal_my_home_maintenance_inherit" inherit_id="portal.portal_my_home" name="Portal Home: My Maintenance Tickets">
+    <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+        <t t-if="request.env.user.has_group('next_base.group_next_maintenance_officer')" t-call="portal.portal_docs_entry">
+            <t t-set="title">My Maintenance Tickets</t>
+            <t t-set="url" t-value="'/my/worker/maintenance'"/>
+        </t>
+    </xpath>
+</template>
+
+<template id="worker_portal_dashboard" name="Maintenance Worker Dashboard">
+    <t t-call="portal.portal_layout">
+        <h2>My Maintenance Tickets</h2>
+
+        <form class="row g-2 mb-4" method="get">
+            <div class="col-auto">
+                <label class="form-label">From</label>
+                <input type="date" name="date_from" class="form-control" t-att-value="date_from"/>
+            </div>
+            <div class="col-auto">
+                <label class="form-label">To</label>
+                <input type="date" name="date_to" class="form-control" t-att-value="date_to"/>
+            </div>
+            <div class="col-auto d-flex align-items-end">
+                <button type="submit" class="btn btn-secondary">Filter</button>
+            </div>
+        </form>
+
+        <div class="row mb-4">
+            <div class="col-md-4 mb-2">
+                <div class="card p-3 text-center"><h3><t t-esc="counts['new']"/></h3><small>New / Assigned</small></div>
+            </div>
+            <div class="col-md-4 mb-2">
+                <div class="card p-3 text-center"><h3><t t-esc="counts['in_progress']"/></h3><small>In Progress</small></div>
+            </div>
+            <div class="col-md-4 mb-2">
+                <div class="card p-3 text-center"><h3><t t-esc="counts['done']"/></h3><small>Resolved</small></div>
+            </div>
+        </div>
+
+        <table class="table table-hover">
+            <thead><tr><th>Ticket</th><th>Room</th><th>Status</th><th/></tr></thead>
+            <tbody>
+                <tr t-foreach="requests" t-as="req">
+                    <td><t t-esc="req.name"/></td>
+                    <td><t t-esc="req.next_room_id.name or '-'"/></td>
+                    <td>
+                        <span t-attf-class="badge text-bg-#{'secondary' if req.next_state in ('new', 'assigned') else ('warning' if req.next_state == 'in_progress' else 'success')}">
+                            <t t-esc="dict(req._fields['next_state'].selection).get(req.next_state)"/>
+                        </span>
+                    </td>
+                    <td>
+                        <form t-if="req.next_state in ('new', 'assigned')" t-attf-action="/my/worker/maintenance/#{req.id}/start" method="post">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <button type="submit" class="btn btn-sm btn-primary">Start</button>
+                        </form>
+                        <form t-if="req.next_state == 'in_progress'" t-attf-action="/my/worker/maintenance/#{req.id}/resolve" method="post">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <button type="submit" class="btn btn-sm btn-success">Resolve</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </t>
+</template>
+
+</odoo>
