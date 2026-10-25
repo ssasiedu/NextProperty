@@ -23,14 +23,39 @@
     <t t-call="portal.portal_layout">
         <h2>Net Revenue Statements</h2>
         <p class="text-muted">Figures below are the officially published statements for your properties.</p>
+
+        <div t-if="trend_points" class="card p-3 mb-4">
+            <h5>Net Revenue Trend</h5>
+            <div class="d-flex align-items-end" style="height: 160px; gap: 10px;">
+                <t t-foreach="trend_points" t-as="pt">
+                    <div class="d-flex flex-column align-items-center justify-content-end" style="flex: 1; height: 100%;">
+                        <div class="bg-primary rounded-top" t-attf-style="width: 100%; height: #{pt['pct']}%; min-height: 2px;"
+                             t-att-title="pt['amount']"/>
+                        <small class="text-muted mt-1" style="writing-mode: horizontal-tb; font-size: 10px;"><t t-esc="pt['label']"/></small>
+                    </div>
+                </t>
+            </div>
+        </div>
+
         <table class="table">
-            <thead><tr><th>Property</th><th>Room</th><th>Period</th><th>Amount</th></tr></thead>
+            <thead><tr><th>Property</th><th>Room</th><th>Period</th><th>Amount</th><th>Payment</th><th/></tr></thead>
             <tbody>
                 <tr t-foreach="statements" t-as="st">
                     <td><t t-esc="st.property_id.name"/></td>
                     <td><t t-esc="st.room_id.name or '-'"/></td>
                     <td><t t-esc="st.period_month"/>/<t t-esc="st.period_year"/></td>
                     <td><span t-field="st.amount"/></td>
+                    <td>
+                        <span t-if="st.payment_state == 'unpaid'" class="badge text-bg-secondary">Unpaid</span>
+                        <span t-if="st.payment_state == 'paid'" class="badge text-bg-warning">Paid - please confirm</span>
+                        <span t-if="st.payment_state == 'confirmed'" class="badge text-bg-success">Confirmed</span>
+                    </td>
+                    <td>
+                        <form t-if="st.payment_state == 'paid'" t-attf-action="/my/owner/net-revenue/#{st.id}/confirm" method="post">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <button type="submit" class="btn btn-sm btn-primary">Confirm Receipt</button>
+                        </form>
+                    </td>
                 </tr>
             </tbody>
         </table>

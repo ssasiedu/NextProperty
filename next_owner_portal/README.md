@@ -25,6 +25,18 @@ owner-facing view or controller.
   revision flips the original to `superseded`. `write()` raises if anyone
   tries to edit a published record's figures directly — there is no silent
   edit path.
+- **Payment tracking** (separate from `state`): `payment_state` goes
+  `unpaid` → `paid` (Finance/Manager calls `action_mark_paid()`, recording
+  `paid_date`/`paid_by`/an optional `payment_reference`) → `confirmed` (the
+  owner calls `action_owner_confirm_payment()` from their own portal, which
+  the controller only allows on a statement that is both theirs and already
+  `paid`). The **Owner Payments Due** list/menu (Accountant/Manager) shows
+  every published statement not yet `confirmed`, grouped by owner.
+- **Owner-facing net revenue trend**: `/my/owner/net-revenue` now also
+  renders a simple trend chart above the statement table — built from the
+  same published-only figures, oldest to newest, so an owner can see the
+  shape of their revenue over time without it ever touching the
+  internal/computed numbers above.
 - **`next.room.expense`** + `next.room.compute_internal_net_income()`:
   internal revenue-minus-expenses per room/period, used by
   `action_generate_settlement_statement()` to reconcile against the
@@ -37,5 +49,7 @@ owner-facing view or controller.
   `partner.owned_room_ids` only.
 
 ## SMS triggers wired here (calling `next_sms` directly — see its README)
-`owner_net_revenue_published`, `owner_viewing_requested`,
-`owner_viewing_confirmed`, `owner_room_status_change`.
+`owner_net_revenue_published`, `owner_payment_made`, `owner_payment_confirmed`,
+`owner_viewing_requested`, `owner_viewing_confirmed`, `owner_room_status_change`.
+Every trigger also sends email when its template has one configured — see
+`next_sms`'s README.

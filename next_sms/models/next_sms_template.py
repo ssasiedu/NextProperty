@@ -20,6 +20,8 @@ TRIGGER_CODES = [
     ('maintenance_new_ticket', 'Maintenance: New Ticket Logged'),
     ('maintenance_status_update', 'Maintenance: Status Update'),
     ('owner_net_revenue_published', 'Owner Portal: New Net Revenue Statement Published'),
+    ('owner_payment_made', 'Owner Portal: Net Revenue Payment Sent'),
+    ('owner_payment_confirmed', 'Owner Portal: Owner Confirmed Payment Receipt'),
     ('owner_viewing_requested', 'Owner Portal: Viewing Requested'),
     ('owner_viewing_confirmed', 'Owner Portal: Viewing Confirmed/Rescheduled'),
     ('owner_room_status_change', 'Owner Portal: Room Status Change'),

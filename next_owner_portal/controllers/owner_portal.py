@@ -34,7 +34,33 @@ class NextOwnerPortal(CustomerPortal):
             ('property_id', 'in', partner.owned_property_ids.ids),
             ('state', '=', 'published'),
         ], order='period_year desc, period_month desc')
-        return request.render('next_owner_portal.owner_portal_net_revenue', {'statements': statements})
+        # Chronological order (oldest to newest) for the trend chart - the
+        # table above stays newest-first, which is what someone checking a
+        # specific month wants, but a trend reads left-to-right in time.
+        trend = list(reversed(statements))
+        max_amount = max([s.amount for s in trend] or [0.0]) or 1.0
+        trend_points = [{
+            'label': '%s/%s' % (s.period_month, s.period_year),
+            'amount': s.amount,
+            'pct': round(s.amount / max_amount * 100, 1),
+        } for s in trend]
+        return request.render('next_owner_portal.owner_portal_net_revenue', {
+            'statements': statements, 'trend_points': trend_points,
+        })
+
+    @http.route('/my/owner/net-revenue/<int:statement_id>/confirm', type='http', auth='user',
+                website=True, methods=['POST'])
+    def owner_confirm_payment(self, statement_id, **kw):
+        partner = self._owner_or_redirect()
+        if not partner:
+            return request.redirect('/my')
+        statement = request.env['next.owner.net.revenue'].sudo().browse(statement_id)
+        # Ownership check done here, explicitly, before the sudo() call that
+        # follows - the method itself trusts its caller to have done this.
+        if statement.property_id.id not in partner.owned_property_ids.ids or statement.payment_state != 'paid':
+            return request.redirect('/my/owner/net-revenue')
+        statement.action_owner_confirm_payment()
+        return request.redirect('/my/owner/net-revenue')
 
     @http.route('/my/owner/rooms', type='http', auth='user', website=True)
     def owner_rooms(self, **kw):
