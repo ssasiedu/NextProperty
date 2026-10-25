@@ -26,3 +26,8 @@ access_next_folio_line_user,next.folio.line.user,model_next_folio_line,base.grou
 access_next_folio_line_front_desk,next.folio.line.front.desk,model_next_folio_line,group_next_front_desk,1,1,1,0
 access_next_folio_line_manager,next.folio.line.manager,model_next_folio_line,group_next_manager,1,1,1,1
 access_next_folio_line_owner,next.folio.line.owner.read,model_next_folio_line,group_next_property_owner,1,0,0,0
+access_next_folio_payment_user,next.folio.payment.user,model_next_folio_payment,base.group_user,1,0,0,0
+access_next_folio_payment_front_desk,next.folio.payment.front.desk,model_next_folio_payment,group_next_front_desk,1,1,1,0
+access_next_folio_payment_accountant,next.folio.payment.accountant,model_next_folio_payment,group_next_accountant,1,1,1,1
+access_next_folio_payment_manager,next.folio.payment.manager,model_next_folio_payment,group_next_manager,1,1,1,1
+access_next_folio_payment_owner,next.folio.payment.owner.read,model_next_folio_payment,group_next_property_owner,1,0,0,0

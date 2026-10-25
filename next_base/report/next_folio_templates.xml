@@ -57,6 +57,22 @@
                                         </strong>
                                     </td>
                                 </tr>
+                                <tr t-if="doc.amount_paid">
+                                    <td colspan="3" class="text-end">Paid in advance (deposit/other)</td>
+                                    <td class="text-end">
+                                        -<span t-field="doc.amount_paid"
+                                               t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                                    </td>
+                                </tr>
+                                <tr t-if="doc.amount_paid">
+                                    <td colspan="3" class="text-end"><strong>Balance Due</strong></td>
+                                    <td class="text-end">
+                                        <strong>
+                                            <span t-field="doc.amount_due"
+                                                  t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                                        </strong>
+                                    </td>
+                                </tr>
                             </tfoot>
                         </table>
 

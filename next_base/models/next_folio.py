@@ -27,6 +27,16 @@ class NextFolio(models.Model):
     line_ids = fields.One2many('next.folio.line', 'folio_id', string='Lines')
     amount_total = fields.Monetary(compute='_compute_amount_total', store=True)
 
+    # Payments already received against this folio (deposits at booking,
+    # anything else recorded via record_payment()) - separate from the
+    # itemized charge lines above, since a deposit is money IN, not a
+    # charge. amount_due is what the guest still owes at any point in time,
+    # including before checkout - the final bill (report) shows this, not
+    # just amount_total, so a deposit actually reduces what's presented.
+    payment_ids = fields.One2many('next.folio.payment', 'folio_id', string='Payments Received')
+    amount_paid = fields.Monetary(compute='_compute_amount_paid', store=True)
+    amount_due = fields.Monetary(compute='_compute_amount_due', store=True)
+
     move_id = fields.Many2one('account.move', string='Invoice', copy=False, readonly=True)
 
     # Guest sign-off at checkout: every charge on this folio (room, POS,
@@ -54,6 +64,30 @@ class NextFolio(models.Model):
     def _compute_amount_total(self):
         for rec in self:
             rec.amount_total = sum(rec.line_ids.mapped('amount'))
+
+    @api.depends('payment_ids.amount')
+    def _compute_amount_paid(self):
+        for rec in self:
+            rec.amount_paid = sum(rec.payment_ids.mapped('amount'))
+
+    @api.depends('amount_total', 'amount_paid')
+    def _compute_amount_due(self):
+        for rec in self:
+            rec.amount_due = rec.amount_total - rec.amount_paid
+
+    def record_payment(self, description, amount, payment_type='deposit', reference=None):
+        """Generic entry point for anything paid IN against this folio
+        before the final settle-up at checkout - a booking deposit today,
+        any other advance/partial payment later. Mirrors add_line()'s role
+        for charges."""
+        self.ensure_one()
+        return self.env['next.folio.payment'].create({
+            'folio_id': self.id,
+            'description': description,
+            'amount': amount,
+            'payment_type': payment_type,
+            'reference': reference,
+        })
 
     def add_line(self, description, amount, line_type='other', quantity=1.0, source_ref=None):
         """Generic entry point used by next_pos_integration (POS lines),
@@ -126,3 +160,23 @@ class NextFolioLine(models.Model):
 
     source_model = fields.Char(help='Technical name of the originating record model, if any.')
     source_res_id = fields.Integer(help='ID of the originating record, if any.')
+
+
+class NextFolioPayment(models.Model):
+    """Money already received against a folio, as opposed to next.folio.line
+    which is a charge. A booking deposit is the first and most common one;
+    any other advance/partial payment taken before checkout goes here too."""
+    _name = 'next.folio.payment'
+    _description = 'Folio Payment Received'
+    _order = 'id'
+
+    folio_id = fields.Many2one('next.folio', required=True, ondelete='cascade')
+    description = fields.Char(required=True)
+    payment_type = fields.Selection([
+        ('deposit', 'Booking Deposit'),
+        ('other', 'Other Advance Payment'),
+    ], default='deposit', required=True)
+    amount = fields.Monetary(required=True)
+    currency_id = fields.Many2one(related='folio_id.currency_id', store=True)
+    reference = fields.Char(help='Mobile money transaction id, card reference, receipt number, etc.')
+    date = fields.Datetime(default=fields.Datetime.now, readonly=True)

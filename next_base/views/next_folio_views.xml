@@ -31,8 +31,19 @@
                             <field name="amount"/>
                         </list>
                     </field>
+                    <field name="payment_ids" string="Payments Received" invisible="not payment_ids">
+                        <list create="0" delete="0">
+                            <field name="date"/>
+                            <field name="description"/>
+                            <field name="payment_type"/>
+                            <field name="reference"/>
+                            <field name="amount"/>
+                        </list>
+                    </field>
                     <group class="oe_subtotal_footer">
                         <field name="amount_total"/>
+                        <field name="amount_paid" invisible="not amount_paid"/>
+                        <field name="amount_due" invisible="not amount_paid"/>
                     </group>
                     <group string="Guest Sign-Off" invisible="state == 'open'">
                         <field name="signed_name" placeholder="Guest name"/>

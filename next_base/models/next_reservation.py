@@ -43,6 +43,22 @@ class NextReservation(models.Model):
 
     folio_id = fields.Many2one('next.folio', string='Folio', copy=False, readonly=True)
 
+    # --- Advance payment / deposit: most properties require a down-payment
+    # before a booking is actually confirmed, rather than taking the guest's
+    # word for it. Deliberately simple (a recorded reference, not a full
+    # online-payment integration) - see next_booking's README for how this
+    # plugs into the website flow. ---
+    deposit_required = fields.Boolean(
+        default=False, tracking=True,
+        help='If set, this reservation cannot be confirmed until the deposit is recorded as paid.')
+    deposit_amount = fields.Monetary(default=0.0)
+    deposit_paid = fields.Boolean(default=False, readonly=True, copy=False, tracking=True)
+    deposit_payment_reference = fields.Char(
+        string='Deposit Payment Reference',
+        help='Mobile money transaction id, card reference, receipt number, etc.')
+    deposit_received_date = fields.Datetime(readonly=True, copy=False)
+    deposit_received_by = fields.Many2one('res.users', readonly=True, copy=False)
+
     actual_checkin = fields.Datetime(readonly=True, copy=False)
     actual_checkout = fields.Datetime(readonly=True, copy=False)
 
@@ -99,7 +115,33 @@ class NextReservation(models.Model):
                     raise ValidationError(
                         'Room %s is already reserved for an overlapping date range.' % room.display_name)
 
+    def action_record_deposit_payment(self, reference=None):
+        """Front desk/reservations records that the down-payment has
+        actually been received, before (or as part of) confirming the
+        booking. Posts a 'deposit' line on the folio so it shows up as a
+        payment against the final bill, not just a flag on the reservation."""
+        for rec in self:
+            if rec.deposit_paid:
+                continue
+            if not rec.deposit_amount:
+                raise UserError('Set a deposit amount before recording the payment.')
+            rec.write({
+                'deposit_paid': True,
+                'deposit_payment_reference': reference or rec.deposit_payment_reference,
+                'deposit_received_date': fields.Datetime.now(),
+                'deposit_received_by': self.env.user.id,
+            })
+            if rec.folio_id:
+                rec.folio_id.record_payment(
+                    'Deposit received (%s)' % (rec.deposit_payment_reference or 'no reference'),
+                    rec.deposit_amount)
+
     def action_confirm(self):
+        for rec in self:
+            if rec.deposit_required and not rec.deposit_paid:
+                raise UserError(
+                    'A deposit of %s is required before this booking can be confirmed. '
+                    'Record the deposit payment first.' % rec.deposit_amount)
         self.write({'state': 'confirmed'})
         for room in self.room_ids:
             if room.status == 'green_ready':
