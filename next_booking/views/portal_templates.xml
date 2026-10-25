@@ -6,12 +6,18 @@
         <t t-call="portal.portal_docs_entry">
             <t t-set="title">My Bookings</t>
             <t t-set="url" t-value="'/my/bookings'"/>
-            <t t-set="count" t-value="reservation_count"/>
+            <t t-set="text">View your reservations, folio and invoices</t>
+            <!-- portal.portal_docs_entry keeps every card hidden (d-none) until the
+                 front-end's /my/counters call reports a value for this placeholder -
+                 passing the already-computed "count" alone (without this) leaves the
+                 card permanently hidden, which is why it never appeared. -->
+            <t t-set="placeholder_count" t-value="'reservation_count'"/>
         </t>
         <t t-call="portal.portal_docs_entry">
             <t t-set="title">Service Requests</t>
             <t t-set="url" t-value="'/my/service-requests'"/>
-            <t t-set="count" t-value="service_request_count"/>
+            <t t-set="text">Report a fault or request service during your stay</t>
+            <t t-set="placeholder_count" t-value="'service_request_count'"/>
         </t>
     </xpath>
 </template>

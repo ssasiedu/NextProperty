@@ -1,6 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+<!-- /my on its own never linked here - an owner who logged in had no way to
+     find /my/owner short of being told the URL directly. config_card shows
+     the card immediately (no count badge needed for a plain navigation link). -->
+<template id="portal_my_home_owner_inherit" inherit_id="portal.portal_my_home" name="Portal Home: My Properties">
+    <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+        <t t-if="request.env.user.has_group('next_base.group_next_property_owner')" t-call="portal.portal_docs_entry">
+            <t t-set="title">My Properties</t>
+            <t t-set="text">Net revenue, room status and viewings for your properties</t>
+            <t t-set="url" t-value="'/my/owner'"/>
+            <t t-set="config_card" t-value="True"/>
+        </t>
+    </xpath>
+</template>
+
 <template id="owner_portal_home" name="Owner Portal Home">
     <t t-call="portal.portal_layout">
         <h2>My Properties</h2>
