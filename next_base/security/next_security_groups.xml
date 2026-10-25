@@ -47,19 +47,26 @@
             <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
         </record>
 
-        <!-- Housekeeping Staff and Maintenance Officer are deliberately
-             PORTAL-tier, not full internal users: these are typically the
-             largest headcount in the suite, and a worker only ever needs
-             the lightweight "my tasks" self-service page each module's
-             worker portal provides (see next_housekeeping/next_maintenance),
-             never the backend. This also means they don't consume an
-             internal-user seat. The Supervisor/Officer-with-backend-access
-             tier below adds base.group_user back on top for anyone who
-             genuinely needs the full Kanban/list backend views. -->
+        <!-- Housekeeping Staff and Maintenance Officer are the lightweight,
+             worker-portal tier (see next_housekeeping/next_maintenance's
+             /my/worker/* pages) and deliberately carry NO Odoo "Role"
+             implication at all - neither base.group_user nor
+             base.group_portal. Odoo's Internal/Portal/Public roles are
+             mutually exclusive on a single user, and Supervisor (below)
+             implies this same group while also needing base.group_user -
+             if this group forced base.group_portal, that would transitively
+             force Portal onto every Supervisor and Manager too, which
+             directly conflicts with their base.group_user and breaks module
+             upgrades ("cannot be in exclusive groups 'Role / User',
+             'Role / Portal'"). Instead, a worker's role (Internal vs
+             Portal) is chosen the normal Odoo way when their account is
+             created (Settings > Users > Portal Access, or just leaving them
+             as a plain Internal User), independently of ticking this
+             group - this group only grants the functional
+             ACL/kanban-assignment permissions, for either kind of account. -->
         <record id="group_next_housekeeping" model="res.groups">
             <field name="name">Housekeeping Staff</field>
             <field name="privilege_id" ref="privilege_next_housekeeping"/>
-            <field name="implied_ids" eval="[(4, ref('base.group_portal'))]"/>
         </record>
 
         <record id="group_next_housekeeping_supervisor" model="res.groups">
@@ -71,7 +78,6 @@
         <record id="group_next_maintenance_officer" model="res.groups">
             <field name="name">Maintenance Officer</field>
             <field name="privilege_id" ref="privilege_next_maintenance"/>
-            <field name="implied_ids" eval="[(4, ref('base.group_portal'))]"/>
         </record>
 
         <record id="group_next_maintenance_supervisor" model="res.groups">
