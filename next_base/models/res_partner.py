@@ -17,6 +17,11 @@ class ResPartner(models.Model):
         help='If disabled, next_sms will never send this contact a message, '
              'regardless of template triggers.')
 
+    email_opt_in = fields.Boolean(
+        string='Email Opt-in', default=True,
+        help='If disabled, next_sms will never email this contact, '
+             'regardless of template triggers.')
+
     @api.model
     def _next_owner_scoped_property_ids(self):
         """Helper used by record rules / portal controllers: the set of

@@ -22,7 +22,11 @@ class NextOwnerNetRevenue(models.Model):
     room_id = fields.Many2one('next.room', help='Leave empty for a property-level statement.')
 
     period_month = fields.Selection([(str(i), str(i)) for i in range(1, 13)], required=True)
-    period_year = fields.Integer(required=True, default=lambda self: fields.Date.today().year)
+    # Char, not Integer: this is a period label, not a quantity. An Integer
+    # field renders through Odoo's number formatter, which adds a thousands
+    # separator ("2,026") - wrong for a year. Char displays exactly as typed
+    # everywhere (list, form, kanban, portal, reports) with no formatting.
+    period_year = fields.Char(required=True, default=lambda self: str(fields.Date.today().year))
 
     amount = fields.Monetary(required=True, tracking=True)
     currency_id = fields.Many2one('res.currency', required=True,

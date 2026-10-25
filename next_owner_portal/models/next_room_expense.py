@@ -26,7 +26,9 @@ class NextRoomExpense(models.Model):
     ], required=True, default='other')
 
     period_month = fields.Selection([(str(i), str(i)) for i in range(1, 13)], required=True)
-    period_year = fields.Integer(required=True, default=lambda self: fields.Date.today().year)
+    # Char, not Integer - see next_owner_net_revenue.py for why (avoids the
+    # "2,026" thousands-separator bug on a plain year label).
+    period_year = fields.Char(required=True, default=lambda self: str(fields.Date.today().year))
 
     amount = fields.Monetary(required=True)
     currency_id = fields.Many2one('res.currency', required=True,
@@ -51,12 +53,12 @@ class NextRoomNetIncome(models.Model):
         revenue = 0.0
         for folio in folios:
             checkout = folio.reservation_id.actual_checkout
-            if checkout and str(checkout.month) == str(period_month) and checkout.year == int(period_year):
+            if checkout and str(checkout.month) == str(period_month) and str(checkout.year) == str(period_year):
                 revenue += folio.amount_total
 
         expenses = self.env['next.room.expense'].search([
             ('room_id', '=', self.id), ('period_month', '=', str(period_month)),
-            ('period_year', '=', int(period_year)),
+            ('period_year', '=', str(period_year)),
         ])
         total_expenses = sum(expenses.mapped('amount'))
         return {
@@ -76,7 +78,7 @@ class NextRoomNetIncome(models.Model):
             internal = room.compute_internal_net_income(period_month, period_year)
             published = NetRevenue.search([
                 ('room_id', '=', room.id), ('period_month', '=', str(period_month)),
-                ('period_year', '=', int(period_year)), ('state', '=', 'published'),
+                ('period_year', '=', str(period_year)), ('state', '=', 'published'),
             ], limit=1)
             if published and abs(published.amount - internal['net_income']) > 0.01:
                 room.message_post(

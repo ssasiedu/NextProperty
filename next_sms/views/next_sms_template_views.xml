@@ -13,7 +13,18 @@
                         <field name="property_id"/>
                         <field name="active"/>
                     </group>
-                    <field name="body" placeholder="Use {guest_name}, {room_number}, {date_from}, {date_to}, {amount}..."/>
+                    <notebook>
+                        <page string="SMS">
+                            <field name="body" placeholder="Use {guest_name}, {room_number}, {date_from}, {date_to}, {amount}..."/>
+                        </page>
+                        <page string="Email">
+                            <p class="text-muted">
+                                Leave the subject blank to send SMS only for this trigger - email is optional per template.
+                            </p>
+                            <field name="email_subject" placeholder="e.g. Your booking at {property_name} is confirmed"/>
+                            <field name="email_body" placeholder="Same {placeholder} tokens as the SMS body. HTML is allowed."/>
+                        </page>
+                    </notebook>
                 </sheet>
             </form>
         </field>
