@@ -20,6 +20,7 @@ class NextOwnerNetRevenue(models.Model):
 
     property_id = fields.Many2one('next.property', required=True)
     room_id = fields.Many2one('next.room', help='Leave empty for a property-level statement.')
+    owner_ids = fields.Many2many('res.partner', string='Owner(s)', related='property_id.owner_ids')
 
     period_month = fields.Selection([(str(i), str(i)) for i in range(1, 13)], required=True)
     # Char, not Integer: this is a period label, not a quantity. An Integer
@@ -47,6 +48,22 @@ class NextOwnerNetRevenue(models.Model):
     supersedes_id = fields.Many2one('next.owner.net.revenue', string='Supersedes', readonly=True, copy=False)
     revision_number = fields.Integer(default=1, readonly=True)
 
+    # --- Payment tracking: a published statement is a figure; this is
+    # whether the money behind it has actually moved. Separate from `state`
+    # on purpose - a statement can be published and unpaid for a while
+    # (e.g. waiting for the monthly payout run), and once paid, waits on the
+    # owner to confirm receipt before anyone considers the period closed. ---
+    payment_state = fields.Selection([
+        ('unpaid', 'Unpaid'),
+        ('paid', 'Paid - Awaiting Owner Confirmation'),
+        ('confirmed', 'Confirmed by Owner'),
+    ], default='unpaid', required=True, tracking=True, copy=False)
+
+    paid_date = fields.Datetime(readonly=True, copy=False)
+    paid_by = fields.Many2one('res.users', readonly=True, copy=False)
+    payment_reference = fields.Char(help='Bank transfer reference, cheque number, mobile money transaction id, etc.')
+    confirmed_date = fields.Datetime(string='Owner Confirmed On', readonly=True, copy=False)
+
     _period_property_room_uniq = models.Constraint(
         'unique(property_id, room_id, period_month, period_year, state)',
         'Use a revision instead of a duplicate entry for the same property/room/period '
@@ -69,6 +86,52 @@ class NextOwnerNetRevenue(models.Model):
                                            'period': '%s/%s' % (rec.period_month, rec.period_year),
                                            'amount': rec.amount,
                                        }, related_record=rec)
+
+    def action_mark_paid(self):
+        """Finance/Manager records that the payout has actually been sent
+        to the owner (bank transfer, mobile money, cheque, etc.). Only a
+        published statement can be marked paid - there is nothing to pay
+        out on a draft figure."""
+        for rec in self:
+            if rec.state != 'published':
+                raise UserError('Only a published statement can be marked as paid.')
+            if rec.payment_state != 'unpaid':
+                raise UserError('This statement is already marked paid.')
+            rec.write({
+                'payment_state': 'paid',
+                'paid_date': fields.Datetime.now(),
+                'paid_by': self.env.user.id,
+            })
+            for owner in rec.property_id.owner_ids:
+                self.env['next.sms.template'].send_trigger(
+                    'owner_payment_made', owner, property_id=rec.property_id.id,
+                    placeholders={
+                        'property_name': rec.property_id.name,
+                        'period': '%s/%s' % (rec.period_month, rec.period_year),
+                        'amount': rec.amount,
+                    }, related_record=rec)
+
+    def action_owner_confirm_payment(self):
+        """Called by the owner from the portal (see owner_portal.py), which
+        is responsible for checking the record actually belongs to them
+        before calling this. Confirms receipt of a payment already marked
+        paid by Finance - the owner cannot confirm a payment that was never
+        recorded as sent."""
+        for rec in self:
+            if rec.payment_state != 'paid':
+                raise UserError('This statement has not been marked as paid yet - nothing to confirm.')
+            rec.write({'payment_state': 'confirmed', 'confirmed_date': fields.Datetime.now()})
+            rec.message_post(body='Owner confirmed receipt of payment for %s/%s.' % (
+                rec.period_month, rec.period_year))
+            notify_user = rec.paid_by or rec.entered_by
+            if notify_user:
+                self.env['next.sms.template'].send_trigger(
+                    'owner_payment_confirmed', notify_user.partner_id, property_id=rec.property_id.id,
+                    placeholders={
+                        'property_name': rec.property_id.name,
+                        'period': '%s/%s' % (rec.period_month, rec.period_year),
+                        'amount': rec.amount,
+                    }, related_record=rec)
 
     def action_create_revision(self):
         """The only way to change a published figure: create a new draft

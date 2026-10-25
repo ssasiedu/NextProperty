@@ -13,7 +13,11 @@
                             class="btn-primary" invisible="state != 'draft' or not supersedes_id"/>
                     <button name="action_create_revision" string="Create Revision" type="object"
                             invisible="state != 'published'"/>
+                    <button name="action_mark_paid" string="Mark as Paid" type="object"
+                            class="btn-primary" invisible="state != 'published' or payment_state != 'unpaid'"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,published,superseded"/>
+                    <field name="payment_state" widget="statusbar"
+                           statusbar_visible="unpaid,paid,confirmed" invisible="state != 'published'"/>
                 </header>
                 <sheet>
                     <group>
@@ -32,6 +36,16 @@
                             <field name="revision_number" readonly="1"/>
                         </group>
                     </group>
+                    <group string="Payment" invisible="state != 'published'">
+                        <group>
+                            <field name="payment_reference" placeholder="Bank transfer ref., cheque no., mobile money transaction id..."/>
+                            <field name="paid_date" readonly="1" invisible="not paid_date"/>
+                            <field name="paid_by" readonly="1" invisible="not paid_by"/>
+                        </group>
+                        <group>
+                            <field name="confirmed_date" readonly="1" invisible="not confirmed_date"/>
+                        </group>
+                    </group>
                     <field name="notes"/>
                     <field name="attachment" filename="attachment_filename"/>
                     <field name="attachment_filename" invisible="1"/>
@@ -45,13 +59,37 @@
         <field name="model">next.owner.net.revenue</field>
         <field name="arch" type="xml">
             <list decoration-success="state=='published'" decoration-muted="state=='superseded'">
+                <field name="owner_ids" widget="many2many_tags"/>
                 <field name="property_id"/>
                 <field name="room_id"/>
                 <field name="period_month"/>
                 <field name="period_year"/>
                 <field name="amount"/>
                 <field name="state"/>
+                <field name="payment_state" decoration-danger="payment_state == 'unpaid'"
+                       decoration-warning="payment_state == 'paid'" decoration-success="payment_state == 'confirmed'"/>
             </list>
+        </field>
+    </record>
+
+    <record id="view_next_owner_net_revenue_search" model="ir.ui.view">
+        <field name="name">next.owner.net.revenue.search</field>
+        <field name="model">next.owner.net.revenue</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="owner_ids"/>
+                <field name="property_id"/>
+                <filter string="Published, Unpaid" name="filter_unpaid"
+                        domain="[('state', '=', 'published'), ('payment_state', '=', 'unpaid')]"/>
+                <filter string="Paid - Awaiting Confirmation" name="filter_awaiting"
+                        domain="[('payment_state', '=', 'paid')]"/>
+                <filter string="Confirmed" name="filter_confirmed" domain="[('payment_state', '=', 'confirmed')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Owner" name="groupby_owner" context="{'group_by': 'owner_ids'}"/>
+                    <filter string="Property" name="groupby_property" context="{'group_by': 'property_id'}"/>
+                    <filter string="Payment Status" name="groupby_payment_state" context="{'group_by': 'payment_state'}"/>
+                </group>
+            </search>
         </field>
     </record>
 
@@ -59,6 +97,19 @@
         <field name="name">Owner Net Revenue Statements</field>
         <field name="res_model">next.owner.net.revenue</field>
         <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_next_owner_net_revenue_search"/>
+    </record>
+
+    <record id="action_next_owner_payments_due" model="ir.actions.act_window">
+        <field name="name">Owner Payments Due</field>
+        <field name="res_model">next.owner.net.revenue</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', '=', 'published'), ('payment_state', '!=', 'confirmed')]</field>
+        <field name="search_view_id" ref="view_next_owner_net_revenue_search"/>
+        <field name="context">{'search_default_groupby_owner': 1}</field>
+        <field name="help">Every published statement that has not yet been confirmed as received by its
+                            owner - mark one as paid once the transfer is sent, then wait for the owner
+                            to confirm receipt from their own portal.</field>
     </record>
 
 </odoo>

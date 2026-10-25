@@ -93,6 +93,20 @@
             <field name="email_subject">New net revenue statement for {property_name} ({period})</field>
             <field name="email_body"><![CDATA[<p>A new net revenue statement for <strong>{property_name}</strong> ({period}) has been published.</p><p>Amount: <strong>{amount}</strong>.</p><p>Log in to the Owner Portal to view the full statement and its trend.</p>]]></field>
         </record>
+        <record id="tmpl_owner_payment_made" model="next.sms.template">
+            <field name="name">Net Revenue Payment Sent</field>
+            <field name="trigger_code">owner_payment_made</field>
+            <field name="body">Payment of {amount} for {property_name} ({period}) has been sent. Please confirm receipt in the Owner Portal.</field>
+            <field name="email_subject">Payment sent for {property_name} ({period})</field>
+            <field name="email_body"><![CDATA[<p>A payment of <strong>{amount}</strong> for <strong>{property_name}</strong> ({period}) has been sent.</p><p>Please log in to the Owner Portal and confirm receipt once you have it.</p>]]></field>
+        </record>
+        <record id="tmpl_owner_payment_confirmed" model="next.sms.template">
+            <field name="name">Owner Confirmed Payment Receipt</field>
+            <field name="trigger_code">owner_payment_confirmed</field>
+            <field name="body">Owner confirmed receipt of {amount} for {property_name} ({period}).</field>
+            <field name="email_subject">Payment confirmed by owner - {property_name} ({period})</field>
+            <field name="email_body"><![CDATA[<p>The owner has confirmed receipt of <strong>{amount}</strong> for <strong>{property_name}</strong> ({period}).</p>]]></field>
+        </record>
         <record id="tmpl_owner_viewing_requested" model="next.sms.template">
             <field name="name">Viewing Requested</field>
             <field name="trigger_code">owner_viewing_requested</field>
