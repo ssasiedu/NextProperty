@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<template id="portal_my_home_housekeeping_inherit" inherit_id="portal.portal_my_home" name="Portal Home: My Housekeeping Tasks">
+    <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+        <t t-if="request.env.user.has_group('next_base.group_next_housekeeping')" t-call="portal.portal_docs_entry">
+            <t t-set="title">My Housekeeping Tasks</t>
+            <t t-set="url" t-value="'/my/worker/housekeeping'"/>
+        </t>
+    </xpath>
+</template>
+
+<template id="worker_portal_dashboard" name="Housekeeping Worker Dashboard">
+    <t t-call="portal.portal_layout">
+        <h2>My Housekeeping Tasks</h2>
+
+        <form class="row g-2 mb-4" method="get">
+            <div class="col-auto">
+                <label class="form-label">From</label>
+                <input type="date" name="date_from" class="form-control" t-att-value="date_from"/>
+            </div>
+            <div class="col-auto">
+                <label class="form-label">To</label>
+                <input type="date" name="date_to" class="form-control" t-att-value="date_to"/>
+            </div>
+            <div class="col-auto d-flex align-items-end">
+                <button type="submit" class="btn btn-secondary">Filter</button>
+            </div>
+        </form>
+
+        <div class="row mb-4">
+            <div class="col-md-3 mb-2">
+                <div class="card p-3 text-center"><h3><t t-esc="counts['total']"/></h3><small>Total Assigned</small></div>
+            </div>
+            <div class="col-md-3 mb-2">
+                <div class="card p-3 text-center"><h3><t t-esc="counts['not_started']"/></h3><small>Not Started</small></div>
+            </div>
+            <div class="col-md-3 mb-2">
+                <div class="card p-3 text-center"><h3><t t-esc="counts['in_progress']"/></h3><small>In Progress</small></div>
+            </div>
+            <div class="col-md-3 mb-2">
+                <div class="card p-3 text-center"><h3><t t-esc="counts['complete']"/></h3><small>Completed</small></div>
+            </div>
+        </div>
+
+        <table class="table table-hover">
+            <thead><tr><th>Room</th><th>Type</th><th>Status</th><th>Deadline</th><th/></tr></thead>
+            <tbody>
+                <tr t-foreach="tasks" t-as="task">
+                    <td><t t-esc="task.room_id.name"/></td>
+                    <td><t t-esc="dict(task._fields['task_type'].selection).get(task.task_type)"/></td>
+                    <td>
+                        <span t-attf-class="badge text-bg-#{'secondary' if task.state == 'not_started' else ('warning' if task.state == 'in_progress' else 'success')}">
+                            <t t-esc="dict(task._fields['state'].selection).get(task.state)"/>
+                        </span>
+                        <span t-if="task.is_overdue" class="badge text-bg-danger">Overdue</span>
+                    </td>
+                    <td><t t-esc="task.deadline or '-'"/></td>
+                    <td>
+                        <form t-if="task.state == 'not_started'" t-attf-action="/my/worker/housekeeping/#{task.id}/start" method="post">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <button type="submit" class="btn btn-sm btn-primary">Start</button>
+                        </form>
+                        <form t-if="task.state == 'in_progress'" t-attf-action="/my/worker/housekeeping/#{task.id}/complete" method="post">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <button type="submit" class="btn btn-sm btn-success">Complete</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </t>
+</template>
+
+</odoo>

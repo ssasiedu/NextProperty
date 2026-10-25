@@ -14,11 +14,12 @@ NEXT Property Management - Maintenance
 """,
     'author': 'NEXT Property Management',
     'license': 'LGPL-3',
-    'depends': ['next_base', 'next_booking', 'maintenance'],
+    'depends': ['next_base', 'next_booking', 'maintenance', 'portal'],
     'data': [
         'security/ir.model.access.csv',
         'views/next_maintenance_request_views.xml',
         'views/next_maintenance_menus.xml',
+        'views/worker_portal_templates.xml',
     ],
     'installable': True,
     'application': False,

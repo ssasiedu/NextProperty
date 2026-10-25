@@ -3,7 +3,7 @@
 Housekeeping task management.
 
 ## Depends on
-`next_base`.
+`next_base`, `portal`.
 
 ## Provides
 - `next.housekeeping.task`: `not_started → in_progress → inspected → complete`.
@@ -16,3 +16,11 @@ Housekeeping task management.
 - Supervisor Kanban dashboard (grouped by state) to assign/reassign.
 - On `action_complete()`, flips the room from `red_pending_checkout` to
   `green_ready` automatically.
+- **Worker self-service portal** (`/my/worker/housekeeping`): `group_next_
+  housekeeping` is PORTAL-tier, not a full internal user (see next_base's
+  security groups) - a plain room attendant never touches the backend
+  Kanban, just this page: task counts (total/not started/in progress/
+  complete), optional date-range filter, and a Start/Complete button per
+  task, each scoped to `assigned_to == current user` and run via `sudo()`
+  after that check. `group_next_housekeeping_supervisor` additionally
+  implies `base.group_user`, so supervisors keep full backend access.
