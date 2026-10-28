@@ -20,19 +20,20 @@ class ResPartner(models.Model):
         string='Owned Properties')
 
     # Not a plain One2many on next.room.owner_id any more: that field is
-    # only ever an explicit per-room override (rare - splitting a single
-    # co-owned property room-by-room), and virtually nobody sets it, since
-    # the actual, documented onboarding flow is just ticking "Is Property
-    # Owner" and picking Owned Properties above. A room counts as owned
-    # here on the same two conditions as rule_next_room_owner in
-    # next_base_security.xml (keep both in sync if either ever changes):
-    # explicitly owner_id = me, OR owner_id is unset and its property is
-    # one of mine.
+    # only ever an explicit, additive per-room grant (rare - e.g. letting
+    # someone see one room without owning its whole property), and
+    # virtually nobody sets it, since the actual, documented onboarding
+    # flow is just ticking "Is Property Owner" and picking Owned
+    # Properties above. A room counts as owned here on the same OR
+    # condition as rule_next_room_owner in next_base_security.xml (keep
+    # both in sync if either ever changes): owner_id = me, OR its property
+    # is one of mine - plain OR, so a stray/stale owner_id value left on a
+    # room from earlier testing can never block access that owning the
+    # property already grants.
     owned_room_ids = fields.Many2many(
         'next.room', compute='_compute_owned_room_ids', string='Owned Rooms')
 
-    @api.depends('is_property_owner', 'owned_property_ids', 'owned_property_ids.room_ids',
-                 'owned_property_ids.room_ids.owner_id')
+    @api.depends('is_property_owner', 'owned_property_ids', 'owned_property_ids.room_ids')
     def _compute_owned_room_ids(self):
         Room = self.env['next.room']
         for partner in self:
@@ -42,7 +43,7 @@ class ResPartner(models.Model):
             partner.owned_room_ids = Room.search([
                 '|',
                 ('owner_id', '=', partner.id),
-                '&', ('owner_id', '=', False), ('property_id.owner_ids', 'in', partner.id),
+                ('property_id.owner_ids', 'in', partner.id),
             ])
 
     @api.model_create_multi
