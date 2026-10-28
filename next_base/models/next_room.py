@@ -48,6 +48,13 @@ class NextRoom(models.Model):
 
     blocked_reason = fields.Char(help='Why this room is currently grey_blocked (maintenance, viewing, manual).')
 
+    # Reverse of next.reservation's room_ids - exists purely so the Guest
+    # Portal's ir.rule (next_base_security.xml) can scope a guest's room
+    # access to "rooms on one of my own reservations" without leaking every
+    # other guest's room assignment.
+    reservation_ids = fields.Many2many('next.reservation', 'next_reservation_room_rel', 'room_id', 'reservation_id',
+                                        string='Reservations')
+
     _name_property_uniq = models.Constraint(
         'unique(name, property_id)',
         'Room number must be unique within a property.',
