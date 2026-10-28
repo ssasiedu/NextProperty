@@ -19,6 +19,61 @@ def _parse_datetime_local(value):
     return value
 
 
+def _build_trend_chart(points, currency_symbol):
+    """points: ordered [(label, amount), ...], already aggregated to one
+    point per period (never one per statement - an owner with several
+    rooms can have more than one published statement for the same
+    period, which isn't a second point on a trend, it's the same period
+    counted twice). Returns everything the SVG in the template needs
+    already computed - coordinates, the line/area point strings, grid
+    lines - so the template only has to render values, never calculate
+    with them (QWeb has no real arithmetic to lean on for this)."""
+    if not points:
+        return None
+    width, height = 640, 220
+    pad_x, pad_top, pad_bottom = 28, 20, 30
+    plot_w = width - 2 * pad_x
+    plot_h = height - pad_top - pad_bottom
+
+    amounts = [p[1] for p in points]
+    # The baseline always includes 0 - a trend of entirely-positive figures
+    # shouldn't make the smallest one look like it's near the floor when
+    # it's actually most of the way up a y-axis that doesn't start at 0.
+    lo, hi = min(0.0, min(amounts)), max(0.0, max(amounts))
+    span = (hi - lo) or 1.0
+
+    def x_for(i):
+        return pad_x if len(points) == 1 else pad_x + i * plot_w / (len(points) - 1)
+
+    def y_for(v):
+        return pad_top + (1 - (v - lo) / span) * plot_h
+
+    coords = [(x_for(i), y_for(a)) for i, a in enumerate(amounts)]
+    baseline_y = y_for(lo)
+
+    if len(coords) == 1:
+        # A single point still needs to read as a short flat segment, or
+        # there's nothing for the area fill to enclose and nothing to see.
+        x, y = coords[0]
+        coords = [(x - 40, y), (x + 40, y)]
+
+    line_points = ' '.join('%.1f,%.1f' % c for c in coords)
+    area_points = '%s %.1f,%.1f %.1f,%.1f' % (
+        line_points, coords[-1][0], baseline_y, coords[0][0], baseline_y)
+
+    return {
+        'width': width, 'height': height,
+        'line_points': line_points,
+        'area_points': area_points,
+        'gridlines_y': [pad_top, pad_top + plot_h / 2, pad_top + plot_h],
+        'points': [{
+            'x': x_for(i), 'y': y_for(amounts[i]),
+            'label': points[i][0],
+            'amount_label': '%s %s' % (currency_symbol, '{:,.0f}'.format(amounts[i])),
+        } for i in range(len(points))],
+    }
+
+
 class NextOwnerPortal(CustomerPortal):
     """Owner-facing portal pages. All queries are scoped to the logged-in
     owner's partner via the record rules in next_base/next_owner_portal
@@ -59,18 +114,24 @@ class NextOwnerPortal(CustomerPortal):
             '|', ('room_id', '=', False), ('room_id', 'in', partner.owned_room_ids.ids),
             ('state', '=', 'published'),
         ], order='period_year desc, period_month desc')
-        # Chronological order (oldest to newest) for the trend chart - the
+        # One point per PERIOD, not per statement - an owner who co-owns
+        # several rooms can have more than one published statement for the
+        # same month (one per room, or one per room plus a property-wide
+        # one), which is the same period on a trend, not two separate
+        # ones. Summed, then chronological order (oldest to newest) - the
         # table above stays newest-first, which is what someone checking a
         # specific month wants, but a trend reads left-to-right in time.
-        trend = list(reversed(statements))
-        max_amount = max([s.amount for s in trend] or [0.0]) or 1.0
-        trend_points = [{
-            'label': '%s/%s' % (s.period_month, s.period_year),
-            'amount': s.amount,
-            'pct': round(s.amount / max_amount * 100, 1),
-        } for s in trend]
+        period_totals = {}
+        for s in statements:
+            key = (int(s.period_year), int(s.period_month))
+            period_totals.setdefault(key, {'label': '%s/%s' % (s.period_month, s.period_year), 'amount': 0.0})
+            period_totals[key]['amount'] += s.amount
+        ordered = [period_totals[key] for key in sorted(period_totals)]
+        currency_symbol = request.env.company.currency_id.symbol or ''
+        trend_chart = _build_trend_chart(
+            [(p['label'], p['amount']) for p in ordered], currency_symbol)
         return request.render('next_owner_portal.owner_portal_net_revenue', {
-            'statements': statements, 'trend_points': trend_points,
+            'statements': statements, 'trend_chart': trend_chart,
         })
 
     @http.route('/my/owner/net-revenue/<int:statement_id>/confirm', type='http', auth='user',

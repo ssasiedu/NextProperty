@@ -38,17 +38,46 @@
         <h2>Net Revenue Statements</h2>
         <p class="text-muted">Figures below are the officially published statements for your properties.</p>
 
-        <div t-if="trend_points" class="card p-3 mb-4">
-            <h5>Net Revenue Trend</h5>
-            <div class="d-flex align-items-end" style="height: 160px; gap: 10px;">
-                <t t-foreach="trend_points" t-as="pt">
-                    <div class="d-flex flex-column align-items-center justify-content-end" style="flex: 1; height: 100%;">
-                        <div class="bg-primary rounded-top" t-attf-style="width: 100%; height: #{pt['pct']}%; min-height: 2px;"
-                             t-att-title="pt['amount']"/>
-                        <small class="text-muted mt-1" style="writing-mode: horizontal-tb; font-size: 10px;"><t t-esc="pt['label']"/></small>
-                    </div>
+        <div t-if="trend_chart" class="card p-3 p-md-4 mb-4 next-trend-card">
+            <h5 class="mb-3">Net Revenue Trend</h5>
+            <!-- Every coordinate is computed server-side (_build_trend_chart
+                 in owner_portal.py) - the template only renders values, it
+                 never calculates with them. currentColor on the line/fill
+                 picks up next-trend-card's own text-primary color below,
+                 which is the normal way to theme inline SVG from CSS
+                 without inlining a fixed hex that could drift from the
+                 site's actual primary color. -->
+            <svg t-attf-viewBox="0 0 #{trend_chart['width']} #{trend_chart['height']}"
+                 class="w-100 text-primary" preserveAspectRatio="none"
+                 style="height: 220px; display: block; overflow: visible;">
+                <defs>
+                    <linearGradient id="nextTrendFill" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="currentColor" stop-opacity="0.28"/>
+                        <stop offset="100%" stop-color="currentColor" stop-opacity="0.02"/>
+                    </linearGradient>
+                </defs>
+                <t t-foreach="trend_chart['gridlines_y']" t-as="gy">
+                    <line x1="0" t-att-y1="gy" t-attf-x2="#{trend_chart['width']}" t-att-y2="gy"
+                          stroke="#E5E7EB" stroke-width="1"/>
                 </t>
-            </div>
+                <polygon t-attf-points="#{trend_chart['area_points']}" fill="url(#nextTrendFill)"/>
+                <polyline t-attf-points="#{trend_chart['line_points']}" fill="none" stroke="currentColor"
+                          stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+                <t t-foreach="trend_chart['points']" t-as="pt">
+                    <circle t-att-cx="pt['x']" t-att-cy="pt['y']" r="4.5" fill="white"
+                            stroke="currentColor" stroke-width="2.5">
+                        <title><t t-esc="pt['label']"/>: <t t-esc="pt['amount_label']"/></title>
+                    </circle>
+                    <text t-att-x="pt['x']" t-attf-y="#{pt['y'] - 12}" text-anchor="middle"
+                          font-size="12" font-weight="600" fill="#1F2937">
+                        <t t-esc="pt['amount_label']"/>
+                    </text>
+                    <text t-att-x="pt['x']" t-attf-y="#{trend_chart['height'] - 8}" text-anchor="middle"
+                          font-size="11" fill="#6B7280">
+                        <t t-esc="pt['label']"/>
+                    </text>
+                </t>
+            </svg>
         </div>
 
         <table class="table">
