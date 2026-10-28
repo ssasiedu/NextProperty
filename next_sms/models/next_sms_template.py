@@ -71,6 +71,59 @@ class NextSmsTemplate(models.Model):
             return str(placeholders.get(key, '{%s}' % key))
         return re.sub(r'\{(\w+)\}', repl, body or '')
 
+    def _build_email_html(self, subject, body_html, property_id=False):
+        """Wraps a template's (plain) email_body in a consistent, branded
+        shell - banner, card, footer - applied at send time rather than
+        baked into each of the 20 seed templates' stored HTML. That means:
+        one place to keep the look consistent, it applies to every trigger
+        immediately (no noupdate="1" migration needed to reach an existing
+        database - see next_sms/migrations/19.0.1.1.0 for why that matters
+        here), and it never clobbers an admin's own edits to a template's
+        *content*, since only the wrapper around it is templated code.
+        Table-based layout with inline styles throughout - the only markup
+        Outlook's rendering engine reliably honours in an email."""
+        company = self.env.company
+        brand_name = company.name or 'NEXT Property Management'
+        if property_id:
+            property_name = self.env['next.property'].browse(property_id).name
+            if property_name:
+                brand_name = property_name
+
+        logo_html = ''
+        if company.logo:
+            base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url', '')
+            logo_url = '%s/web/image/res.company/%s/logo' % (base_url, company.id)
+            logo_html = (
+                '<img src="%s" alt="%s" height="40" '
+                'style="height:40px;max-height:40px;width:auto;display:block;margin:0 auto 10px;"/>'
+            ) % (logo_url, brand_name)
+
+        return '''<table role="presentation" width="100%%" cellpadding="0" cellspacing="0"
+       style="background-color:#F3F4F6;padding:32px 16px;font-family:Arial,Helvetica,sans-serif;">
+  <tr><td align="center">
+    <table role="presentation" width="600" cellpadding="0" cellspacing="0"
+           style="max-width:600px;width:100%%;background-color:#FFFFFF;border-radius:8px;overflow:hidden;">
+      <tr>
+        <td align="center" style="background-color:#0F3D3E;padding:28px 24px;">
+          %(logo_html)s
+          <div style="color:#FFFFFF;font-size:20px;font-weight:bold;letter-spacing:0.3px;">%(brand_name)s</div>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:32px 28px;color:#1F2937;font-size:15px;line-height:1.6;">
+          %(body_html)s
+        </td>
+      </tr>
+      <tr>
+        <td style="background-color:#F9FAFB;padding:18px 28px;border-top:1px solid #E5E7EB;
+                   color:#9CA3AF;font-size:12px;line-height:1.5;text-align:center;">
+          This is an automated message from %(brand_name)s. Please do not reply directly to this email.
+        </td>
+      </tr>
+    </table>
+  </td></tr>
+</table>''' % {'logo_html': logo_html, 'brand_name': brand_name, 'body_html': body_html}
+
     @api.model
     def send_trigger(self, trigger_code, partner, property_id=False, placeholders=None, related_record=None):
         """Single entry point used by every module in the suite:
@@ -120,12 +173,16 @@ class NextSmsTemplate(models.Model):
         if template.email_subject and partner.email and partner.email_opt_in:
             subject = self._render(template.email_subject, placeholders)
             body_html = self._render(template.email_body or '', placeholders)
+            # Wrap every trigger's raw content in the shared branded banner/
+            # card/footer shell - see _build_email_html's docstring for why
+            # this happens here rather than in each template's stored HTML.
+            full_html = self._build_email_html(subject, body_html, property_id=property_id)
             # Left in the default 'outgoing' state, not .send() here - Odoo's
             # own "Mail: Email Queue Manager" cron delivers it, so (like the
             # SMS path above) this never blocks the caller's transaction.
             self.env['mail.mail'].sudo().create({
                 'subject': subject,
-                'body_html': body_html,
+                'body_html': full_html,
                 'email_to': partner.email,
                 'auto_delete': False,
             })
