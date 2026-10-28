@@ -19,21 +19,24 @@ class ResPartner(models.Model):
         'next.property', 'next_property_owner_rel', 'partner_id', 'property_id',
         string='Owned Properties')
 
-    # Not a plain One2many on next.room.owner_id any more: that field is
-    # only ever an explicit, additive per-room grant (rare - e.g. letting
-    # someone see one room without owning its whole property), and
-    # virtually nobody sets it, since the actual, documented onboarding
-    # flow is just ticking "Is Property Owner" and picking Owned
-    # Properties above. A room counts as owned here on the same OR
-    # condition as rule_next_room_owner in next_base_security.xml (keep
-    # both in sync if either ever changes): owner_id = me, OR its property
-    # is one of mine - plain OR, so a stray/stale owner_id value left on a
-    # room from earlier testing can never block access that owning the
-    # property already grants.
+    # Not a plain One2many on next.room.owner_id any more: a room counts as
+    # owned here on the same EXCLUSIVE-fallback condition as
+    # rule_next_room_owner in next_base_security.xml (keep both in sync if
+    # either ever changes): owner_id = me, OR owner_id is unset AND its
+    # property is one of mine. Exclusive, not a plain OR, because a
+    # property can have several co-owners each owning specific rooms
+    # within it (e.g. Roxy Hotel: owner_ids [ROXYMAN, NANA], with
+    # 101/201 individually owner_id=ROXYMAN and 102/301 owner_id=NANA) -
+    # a plain OR would show every co-owner every room of any property
+    # they co-own, defeating the whole point of setting owner_id per room.
+    # The property-level fallback only ever applies when a room has no
+    # individual owner recorded at all (the common single-owner case,
+    # where nobody bothers setting owner_id per room).
     owned_room_ids = fields.Many2many(
         'next.room', compute='_compute_owned_room_ids', string='Owned Rooms')
 
-    @api.depends('is_property_owner', 'owned_property_ids', 'owned_property_ids.room_ids')
+    @api.depends('is_property_owner', 'owned_property_ids', 'owned_property_ids.room_ids',
+                 'owned_property_ids.room_ids.owner_id')
     def _compute_owned_room_ids(self):
         Room = self.env['next.room']
         for partner in self:
@@ -43,7 +46,7 @@ class ResPartner(models.Model):
             partner.owned_room_ids = Room.search([
                 '|',
                 ('owner_id', '=', partner.id),
-                ('property_id.owner_ids', 'in', partner.id),
+                '&', ('owner_id', '=', False), ('property_id.owner_ids', 'in', partner.id),
             ])
 
     @api.model_create_multi

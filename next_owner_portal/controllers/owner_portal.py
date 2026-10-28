@@ -45,8 +45,18 @@ class NextOwnerPortal(CustomerPortal):
             return request.redirect('/my')
         # Only ever the manually entered, published figure - never a
         # system-computed value - per the non-negotiable constraint.
+        # A statement's room_id is blank for a property-wide figure (shown
+        # to every co-owner of that property) or set for a single room's
+        # figure (shown only to whichever co-owner actually owns that
+        # room - see rule_next_room_owner's docstring for why a property
+        # can have several co-owners splitting it room-by-room). Filtering
+        # here, not just relying on the ir.rule on next.room, is what
+        # stops this list from even listing a room-specific statement for
+        # a room this owner can't see - rendering it would 403 on
+        # st.room_id.name in the template.
         statements = request.env['next.owner.net.revenue'].search([
             ('property_id', 'in', partner.owned_property_ids.ids),
+            '|', ('room_id', '=', False), ('room_id', 'in', partner.owned_room_ids.ids),
             ('state', '=', 'published'),
         ], order='period_year desc, period_month desc')
         # Chronological order (oldest to newest) for the trend chart - the
