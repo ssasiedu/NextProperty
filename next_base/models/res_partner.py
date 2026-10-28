@@ -51,9 +51,9 @@ class ResPartner(models.Model):
             if not users:
                 continue
             if partner.is_property_owner:
-                users.sudo().write({'groups_id': [(4, group.id)]})
+                users.sudo().write({'group_ids': [(4, group.id)]})
             else:
-                users.sudo().write({'groups_id': [(3, group.id)]})
+                users.sudo().write({'group_ids': [(3, group.id)]})
 
     sms_opt_in = fields.Boolean(
         string='SMS Opt-in', default=True,
