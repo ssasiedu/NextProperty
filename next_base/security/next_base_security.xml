@@ -31,14 +31,52 @@
             <field name="groups" eval="[(4, ref('group_next_property_owner'))]"/>
         </record>
 
-        <!-- Internal staff: unrestricted on next_base models (scoping for
-             guests/portal is handled by the portal-specific controllers in
-             next_booking, which never expose the backend model access directly). -->
+        <!-- Internal staff: unrestricted on next_base models. -->
         <record id="rule_next_room_internal" model="ir.rule">
             <field name="name">Internal staff: all rooms</field>
             <field name="model_id" ref="model_next_room"/>
             <field name="domain_force">[(1, '=', 1)]</field>
             <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
+        <!-- Guest Portal: the access rows in ir.model.access.csv grant
+             base.group_portal plain read on next.room/next.reservation/
+             next.folio/next.folio.line (next_booking's portal controllers
+             in portal.py read these directly, un-sudo'd - a prior version
+             of this comment incorrectly assumed the controllers did their
+             own scoping, but they rely on ACL + rules exactly like every
+             other access path; without these rules, every portal read was
+             either an AccessError - which is why /my/counters silently
+             failed and the My Bookings/Service Requests cards never
+             appeared - or, had the ACL rows existed without these rules,
+             every guest would have been able to read every other guest's
+             bookings and bills). Each is scoped to "my own stay" only. -->
+        <record id="rule_next_reservation_portal_own" model="ir.rule">
+            <field name="name">Portal: own reservations only</field>
+            <field name="model_id" ref="model_next_reservation"/>
+            <field name="domain_force">[('partner_id', '=', user.partner_id.id)]</field>
+            <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        </record>
+
+        <record id="rule_next_room_portal_own" model="ir.rule">
+            <field name="name">Portal: rooms on own reservations only</field>
+            <field name="model_id" ref="model_next_room"/>
+            <field name="domain_force">[('reservation_ids.partner_id', '=', user.partner_id.id)]</field>
+            <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        </record>
+
+        <record id="rule_next_folio_portal_own" model="ir.rule">
+            <field name="name">Portal: own folios only</field>
+            <field name="model_id" ref="model_next_folio"/>
+            <field name="domain_force">[('partner_id', '=', user.partner_id.id)]</field>
+            <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        </record>
+
+        <record id="rule_next_folio_line_portal_own" model="ir.rule">
+            <field name="name">Portal: own folio lines only</field>
+            <field name="model_id" ref="model_next_folio_line"/>
+            <field name="domain_force">[('folio_id.partner_id', '=', user.partner_id.id)]</field>
+            <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
         </record>
 
     </data>
