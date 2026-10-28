@@ -38,22 +38,12 @@ class ResPartner(models.Model):
         (and nothing else - no manual group-ticking, no Internal User
         license) is what grants them the Owner Portal and its backend
         read access: every related ir.model.access.csv row and ir.rule in
-        next_base_security.xml is gated on this one group. Also called
-        from res.users' own create() override, so the sync happens
-        correctly whichever order the two steps occur in: marking an
-        existing portal user as owner, or granting portal access
-        afterwards to a partner already marked as owner."""
-        group = self.env.ref('next_base.group_next_property_owner', raise_if_not_found=False)
-        if not group:
-            return
-        for partner in self:
-            users = partner.user_ids
-            if not users:
-                continue
-            if partner.is_property_owner:
-                users.sudo().write({'group_ids': [(4, group.id)]})
-            else:
-                users.sudo().write({'group_ids': [(3, group.id)]})
+        next_base_security.xml is gated on this one group. The actual
+        group write lives on res.users (_sync_owner_group_onto_self) -
+        that's also the method res.users' own write()/create() hooks call,
+        so there is exactly one place that ever touches this group,
+        whichever side (partner flag, or portal-access grant) changed."""
+        self.mapped('user_ids')._sync_owner_group_onto_self()
 
     sms_opt_in = fields.Boolean(
         string='SMS Opt-in', default=True,
