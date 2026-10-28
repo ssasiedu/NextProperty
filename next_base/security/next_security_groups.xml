@@ -89,7 +89,15 @@
         <record id="group_next_property_owner" model="res.groups">
             <field name="name">Property Owner</field>
             <field name="privilege_id" ref="privilege_next_owner"/>
-            <field name="implied_ids" eval="[(4, ref('base.group_portal'))]"/>
+            <!-- No implied_ids here, deliberately: a Role (Internal User vs.
+                 Portal vs. Public) is mutually exclusive, so this group must
+                 never force one onto an account - the account's own Role
+                 (almost always Portal, per the cost-saving "owners are
+                 customers with portal access, not licensed users" policy)
+                 decides that independently. This mirrors group_next_housekeeping/
+                 group_next_maintenance_officer above. Ticking this group never
+                 has to be done by hand any more either - res.partner syncs it
+                 automatically from is_property_owner; see res_partner.py. -->
         </record>
 
         <record id="group_next_accountant" model="res.groups">
