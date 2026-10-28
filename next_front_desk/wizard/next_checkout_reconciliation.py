@@ -63,3 +63,15 @@ class NextCheckoutReconciliationWizardLine(models.TransientModel):
     name = fields.Char(string='Item', readonly=True)
     quantity_issued = fields.Float(readonly=True)
     quantity_returned = fields.Float(required=True)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        # The parent form's list is already create="0"/delete="0" so staff
+        # can't add a line by hand - but some web-client save paths still
+        # serialize an empty trailing "new row" placeholder from an editable
+        # list along with the rest of the form, which has no inventory_item_id
+        # to give (it was never meant to become a real line). Rather than let
+        # that block the entire checkout with a validation error over a row
+        # nobody actually filled in, silently drop anything with no item.
+        vals_list = [vals for vals in vals_list if vals.get('inventory_item_id')]
+        return super().create(vals_list)
