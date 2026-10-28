@@ -82,4 +82,10 @@ class NextGuestPortal(CustomerPortal):
             return request.redirect('/my/service-requests')
         reservations = request.env['next.reservation'].search([
             ('partner_id', '=', partner.id), ('state', 'in', ('confirmed', 'checked_in'))])
-        return request.render('next_booking.portal_new_service_request', {'reservations': reservations})
+        # Deep-linked from a specific booking's "Report a Fault / Request
+        # Service" button - preselect that stay instead of leaving the guest
+        # to pick it again out of a bare dropdown.
+        selected_reservation_id = int(kw['reservation_id']) if kw.get('reservation_id', '').isdigit() else False
+        return request.render('next_booking.portal_new_service_request', {
+            'reservations': reservations, 'selected_reservation_id': selected_reservation_id,
+        })

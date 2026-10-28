@@ -52,6 +52,9 @@
         <p>Dates: <t t-esc="reservation.date_from"/> &#8594; <t t-esc="reservation.date_to"/></p>
         <p>Status: <t t-esc="reservation.state"/></p>
         <a t-attf-href="/my/bookings/#{reservation.id}/folio" class="btn btn-secondary">View Folio</a>
+        <a t-if="reservation.state in ('confirmed', 'checked_in')"
+           t-attf-href="/my/service-requests/new?reservation_id=#{reservation.id}"
+           class="btn btn-primary ms-2">Report a Fault / Request Service</a>
     </t>
 </template>
 
@@ -99,7 +102,10 @@
             <div class="mb-3">
                 <label>Stay</label>
                 <select name="reservation_id" class="form-select">
-                    <option t-foreach="reservations" t-as="r" t-att-value="r.id"><t t-esc="r.name"/></option>
+                    <option t-foreach="reservations" t-as="r" t-att-value="r.id"
+                            t-att-selected="'selected' if r.id == selected_reservation_id else None">
+                        <t t-esc="r.name"/> - <t t-esc="r.property_id.name"/>
+                    </option>
                 </select>
             </div>
             <div class="mb-3">

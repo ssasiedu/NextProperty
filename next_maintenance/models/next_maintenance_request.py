@@ -49,6 +49,42 @@ class MaintenanceRequest(models.Model):
             # next_sms: 'New ticket logged' trigger fires to assigned_officer_id here.
         return records
 
+    def write(self, vals):
+        # Two independent controls can close a ticket: our own next_state
+        # statusbar (via action_verify, below), or native Maintenance's own
+        # Kanban - dragging a card to a stage with stage_id.done=True, which
+        # officers use day-to-day and which never touches next_state at all.
+        # The room must auto-release back to available whichever one closes
+        # the ticket - not just when action_verify() happens to be called -
+        # otherwise staff fall back to fixing the room status by hand, which
+        # is exactly the gap this override closes.
+        closing_stage_now = False
+        if vals.get('stage_id'):
+            closing_stage_now = bool(self.env['maintenance.stage'].browse(vals['stage_id']).done)
+        becoming_verified = vals.get('next_state') == 'verified' or closing_stage_now
+        newly_closed = self.filtered(lambda r: r.next_state != 'verified') if becoming_verified else self.browse()
+
+        if newly_closed and 'next_state' not in vals:
+            # Fold the next_state sync into this same write (one DB write,
+            # no re-entering write() recursively) - harmless no-op for any
+            # record in self that doesn't belong to newly_closed, since it
+            # would already be 'verified'... but to avoid touching those
+            # records' next_state unnecessarily, only merge this in when the
+            # whole recordset is becoming verified together.
+            if newly_closed == self:
+                vals = dict(vals, next_state='verified')
+
+        res = super().write(vals)
+
+        for rec in newly_closed:
+            if rec.next_state != 'verified':
+                rec.next_state = 'verified'  # mixed recordset fallback: see above
+            if rec.auto_block_room and rec.next_room_id and rec.next_room_id.status == 'grey_blocked':
+                rec.next_room_id.action_clear_block()
+            if rec.service_request_id:
+                rec.service_request_id.action_resolve()
+        return res
+
     def action_assign(self, officer=None):
         self.write({'next_state': 'assigned', 'assigned_officer_id': officer.id if officer else self.assigned_officer_id.id})
 
@@ -61,12 +97,10 @@ class MaintenanceRequest(models.Model):
         # next_sms: status-update trigger to guest (if guest-reported) + room owner.
 
     def action_verify(self):
-        for rec in self:
-            rec.write({'next_state': 'verified'})
-            if rec.auto_block_room and rec.next_room_id and rec.next_room_id.status == 'grey_blocked':
-                rec.next_room_id.action_clear_block()
-            if rec.service_request_id:
-                rec.service_request_id.action_resolve()
+        # All the actual work (room release, linked service-request resolve,
+        # next_state sync with stage_id) lives in write() above so it applies
+        # no matter which control closed the ticket.
+        self.write({'next_state': 'verified'})
 
     def _get_stage_id(self, name):
         stage = self.env['maintenance.stage'].search([('name', '=', name)], limit=1)
