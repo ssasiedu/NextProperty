@@ -3,22 +3,25 @@
     <data noupdate="1">
 
         <!-- Property Owners see a room if EITHER it's individually assigned
-             to them via next.room.owner_id (a rare, explicit override for
-             splitting a single co-owned property room-by-room) OR - the
-             normal case, requiring zero extra per-room setup - owner_id is
-             left empty and they own the room's whole PROPERTY via
-             next.property.owner_ids. Before this, a property owner marked
-             only through "Owned Properties" on their contact (the entire
-             documented onboarding flow - see res_partner.py) could see
-             their property but not one single room/reservation/folio/
-             payment in it, since those three all keyed off next.room.
-             owner_id alone, which nothing ever populates on its own. -->
+             to them via next.room.owner_id (a rare, explicit way to grant
+             visibility into a single room without owning its whole
+             property) OR they own the room's whole PROPERTY via
+             next.property.owner_ids - plain OR, not "only when owner_id is
+             blank": property-level ownership must always be sufficient on
+             its own, since it's the entire documented onboarding flow (see
+             res_partner.py) and owner_id is never set as part of it. A
+             stray/stale owner_id value left on a room from earlier testing
+             (pointing at some other or long-gone contact) must never be
+             able to BLOCK access that property ownership already grants -
+             an earlier version of this rule required owner_id to be False
+             for the property-level path to count at all, which is exactly
+             what a leftover owner_id value would have defeated. -->
         <record id="rule_next_room_owner" model="ir.rule">
             <field name="name">Property Owner: own rooms (direct or via property) only</field>
             <field name="model_id" ref="model_next_room"/>
             <field name="domain_force">['|',
                 ('owner_id.user_ids', 'in', [user.id]),
-                '&amp;', ('owner_id', '=', False), ('property_id.owner_ids.user_ids', 'in', [user.id])]</field>
+                ('property_id.owner_ids.user_ids', 'in', [user.id])]</field>
             <field name="groups" eval="[(4, ref('group_next_property_owner'))]"/>
         </record>
 
@@ -34,7 +37,7 @@
             <field name="model_id" ref="model_next_reservation"/>
             <field name="domain_force">['|',
                 ('room_ids.owner_id.user_ids', 'in', [user.id]),
-                '&amp;', ('room_ids.owner_id', '=', False), ('room_ids.property_id.owner_ids.user_ids', 'in', [user.id])]</field>
+                ('room_ids.property_id.owner_ids.user_ids', 'in', [user.id])]</field>
             <field name="groups" eval="[(4, ref('group_next_property_owner'))]"/>
         </record>
 
@@ -43,8 +46,7 @@
             <field name="model_id" ref="model_next_folio"/>
             <field name="domain_force">['|',
                 ('reservation_id.room_ids.owner_id.user_ids', 'in', [user.id]),
-                '&amp;', ('reservation_id.room_ids.owner_id', '=', False),
-                         ('reservation_id.room_ids.property_id.owner_ids.user_ids', 'in', [user.id])]</field>
+                ('reservation_id.room_ids.property_id.owner_ids.user_ids', 'in', [user.id])]</field>
             <field name="groups" eval="[(4, ref('group_next_property_owner'))]"/>
         </record>
 
@@ -58,8 +60,7 @@
             <field name="model_id" ref="model_next_folio_line"/>
             <field name="domain_force">['|',
                 ('folio_id.reservation_id.room_ids.owner_id.user_ids', 'in', [user.id]),
-                '&amp;', ('folio_id.reservation_id.room_ids.owner_id', '=', False),
-                         ('folio_id.reservation_id.room_ids.property_id.owner_ids.user_ids', 'in', [user.id])]</field>
+                ('folio_id.reservation_id.room_ids.property_id.owner_ids.user_ids', 'in', [user.id])]</field>
             <field name="groups" eval="[(4, ref('group_next_property_owner'))]"/>
         </record>
 
@@ -68,8 +69,7 @@
             <field name="model_id" ref="model_next_folio_payment"/>
             <field name="domain_force">['|',
                 ('folio_id.reservation_id.room_ids.owner_id.user_ids', 'in', [user.id]),
-                '&amp;', ('folio_id.reservation_id.room_ids.owner_id', '=', False),
-                         ('folio_id.reservation_id.room_ids.property_id.owner_ids.user_ids', 'in', [user.id])]</field>
+                ('folio_id.reservation_id.room_ids.property_id.owner_ids.user_ids', 'in', [user.id])]</field>
             <field name="groups" eval="[(4, ref('group_next_property_owner'))]"/>
         </record>
 
