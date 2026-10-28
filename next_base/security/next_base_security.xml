@@ -2,11 +2,23 @@
 <odoo>
     <data noupdate="1">
 
-        <!-- Property Owners only ever see rooms tied to their own owner_id -->
+        <!-- Property Owners see a room if EITHER it's individually assigned
+             to them via next.room.owner_id (a rare, explicit override for
+             splitting a single co-owned property room-by-room) OR - the
+             normal case, requiring zero extra per-room setup - owner_id is
+             left empty and they own the room's whole PROPERTY via
+             next.property.owner_ids. Before this, a property owner marked
+             only through "Owned Properties" on their contact (the entire
+             documented onboarding flow - see res_partner.py) could see
+             their property but not one single room/reservation/folio/
+             payment in it, since those three all keyed off next.room.
+             owner_id alone, which nothing ever populates on its own. -->
         <record id="rule_next_room_owner" model="ir.rule">
-            <field name="name">Property Owner: own rooms only</field>
+            <field name="name">Property Owner: own rooms (direct or via property) only</field>
             <field name="model_id" ref="model_next_room"/>
-            <field name="domain_force">[('owner_id.user_ids', 'in', [user.id])]</field>
+            <field name="domain_force">['|',
+                ('owner_id.user_ids', 'in', [user.id]),
+                '&amp;', ('owner_id', '=', False), ('property_id.owner_ids.user_ids', 'in', [user.id])]</field>
             <field name="groups" eval="[(4, ref('group_next_property_owner'))]"/>
         </record>
 
@@ -20,14 +32,44 @@
         <record id="rule_next_reservation_owner" model="ir.rule">
             <field name="name">Property Owner: reservations for own rooms only</field>
             <field name="model_id" ref="model_next_reservation"/>
-            <field name="domain_force">[('room_ids.owner_id.user_ids', 'in', [user.id])]</field>
+            <field name="domain_force">['|',
+                ('room_ids.owner_id.user_ids', 'in', [user.id]),
+                '&amp;', ('room_ids.owner_id', '=', False), ('room_ids.property_id.owner_ids.user_ids', 'in', [user.id])]</field>
             <field name="groups" eval="[(4, ref('group_next_property_owner'))]"/>
         </record>
 
         <record id="rule_next_folio_owner" model="ir.rule">
             <field name="name">Property Owner: folios for own rooms only</field>
             <field name="model_id" ref="model_next_folio"/>
-            <field name="domain_force">[('reservation_id.room_ids.owner_id.user_ids', 'in', [user.id])]</field>
+            <field name="domain_force">['|',
+                ('reservation_id.room_ids.owner_id.user_ids', 'in', [user.id]),
+                '&amp;', ('reservation_id.room_ids.owner_id', '=', False),
+                         ('reservation_id.room_ids.property_id.owner_ids.user_ids', 'in', [user.id])]</field>
+            <field name="groups" eval="[(4, ref('group_next_property_owner'))]"/>
+        </record>
+
+        <!-- These two had the matching ir.model.access.csv read grant for
+             Property Owner but NO rule at all - meaning, until now, any
+             property owner could read every OTHER property's/guest's folio
+             lines and payments company-wide. Same own-room scoping as
+             rule_next_folio_owner above, just one hop further via folio_id. -->
+        <record id="rule_next_folio_line_owner" model="ir.rule">
+            <field name="name">Property Owner: folio lines for own rooms only</field>
+            <field name="model_id" ref="model_next_folio_line"/>
+            <field name="domain_force">['|',
+                ('folio_id.reservation_id.room_ids.owner_id.user_ids', 'in', [user.id]),
+                '&amp;', ('folio_id.reservation_id.room_ids.owner_id', '=', False),
+                         ('folio_id.reservation_id.room_ids.property_id.owner_ids.user_ids', 'in', [user.id])]</field>
+            <field name="groups" eval="[(4, ref('group_next_property_owner'))]"/>
+        </record>
+
+        <record id="rule_next_folio_payment_owner" model="ir.rule">
+            <field name="name">Property Owner: folio payments for own rooms only</field>
+            <field name="model_id" ref="model_next_folio_payment"/>
+            <field name="domain_force">['|',
+                ('folio_id.reservation_id.room_ids.owner_id.user_ids', 'in', [user.id]),
+                '&amp;', ('folio_id.reservation_id.room_ids.owner_id', '=', False),
+                         ('folio_id.reservation_id.room_ids.property_id.owner_ids.user_ids', 'in', [user.id])]</field>
             <field name="groups" eval="[(4, ref('group_next_property_owner'))]"/>
         </record>
 

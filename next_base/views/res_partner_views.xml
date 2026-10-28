@@ -17,8 +17,11 @@
                         <field name="owned_property_ids" widget="many2many_tags" nolabel="1"/>
                     </group>
                     <group string="Owned Rooms" invisible="not is_property_owner">
-                        <field name="owned_room_ids" nolabel="1">
-                            <list>
+                        <!-- Read-only summary, computed from Owned Properties above
+                             (plus any explicit per-room override) - not itself an
+                             editable membership list, so no create/delete controls. -->
+                        <field name="owned_room_ids" nolabel="1" readonly="1">
+                            <list create="0" delete="0" edit="0">
                                 <field name="name"/>
                                 <field name="property_id"/>
                                 <field name="status"/>
