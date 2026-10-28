@@ -1,6 +1,6 @@
 {
     'name': 'NEXT Property Management - Base',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Industries/Hospitality',
     'summary': 'Core data model, security groups and record rules for NEXT Property Management',
     'description': """
