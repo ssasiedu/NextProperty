@@ -61,6 +61,23 @@ class ResPartner(models.Model):
             self._sync_owner_group()
         return res
 
+    @api.model
+    def _find_or_create_guest(self, name, email=None, phone=None):
+        """Resolves (or creates) the plain contact behind a reservation's
+        partner_id from details collected at booking time - the website's
+        guest-details step, an OTA payload, etc. Matched by email first so
+        a repeat guest doesn't end up with a new duplicate contact every
+        time they book. Deliberately generic (not tied to any one booking
+        channel) so next_channel_manager's OTA guest resolution and
+        next_booking's website guest-details step both go through this one
+        place rather than drifting apart."""
+        partner = self.browse()
+        if email:
+            partner = self.search([('email', '=', email)], limit=1)
+        if not partner:
+            partner = self.create({'name': name or 'Guest', 'email': email, 'phone': phone})
+        return partner
+
     def _sync_owner_group(self):
         """Keep every linked user's Property Owner group membership in
         lockstep with is_property_owner, so marking a customer as an owner

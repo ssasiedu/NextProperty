@@ -81,12 +81,26 @@ class NextBookingWebsite(http.Controller):
             return request.redirect('/book/availability?property_id=%s&date_from=%s&date_to=%s'
                                      '&adults=%s&children=%s&rooms=%s' % (
                                          property_id, date_from, date_to, adults, children, rooms))
-        return request.render('next_booking.booking_step_confirm', {
-            'room_type': room_type, 'free_rooms': free_rooms[:int(rooms)],
+        return request.render('next_booking.booking_step_confirm', self._confirm_page_values(
+            room_type, free_rooms[:int(rooms)], property_id, date_from, date_to,
+            adults, children, rooms, df, dt))
+
+    def _confirm_page_values(self, room_type, free_rooms, property_id, date_from, date_to,
+                              adults, children, rooms, df, dt, error=None,
+                              guest_name='', guest_email='', guest_phone=''):
+        """Shared by the initial GET (book_select) and the POST error
+        re-render in book_confirm below, so both always pass the same set
+        of keys the template expects - is_public decides whether the
+        guest-details fields show at all (a logged-in portal/internal user
+        already has a real partner_id, nothing to collect)."""
+        return {
+            'room_type': room_type, 'free_rooms': free_rooms,
             'property_id': property_id, 'date_from': date_from, 'date_to': date_to,
             'adults': adults, 'children': children, 'rooms': rooms,
             'price': room_type.price_for_stay(df, dt, int(adults), int(children)),
-        })
+            'is_public': request.env.user._is_public(),
+            'error': error, 'guest_name': guest_name, 'guest_email': guest_email, 'guest_phone': guest_phone,
+        }
 
     @http.route('/book/confirm', type='http', auth='public', website=True, methods=['POST'], csrf=True)
     def book_confirm(self, room_type_id=None, property_id=None, date_from=None, date_to=None,
@@ -100,12 +114,32 @@ class NextBookingWebsite(http.Controller):
         room_type = request.env['next.room.type'].sudo().browse(int(room_type_id))
         free_rooms = room_type.get_available_rooms(df, dt)[:int(rooms)]
 
-        partner = request.env.user.partner_id if not request.env.user._is_public() else \
-            request.env['res.partner'].sudo().browse(request.session.get('next_guest_partner_id'))
+        # A public/anonymous booker has no partner_id of their own - without
+        # this, partner_id silently fell back to the shared base.public_partner
+        # placeholder and front desk had no actual guest name, email or phone
+        # to follow up on for ANY online booking. Logged-in users (portal or
+        # internal) already have a real partner_id, so nothing to collect.
+        if request.env.user._is_public():
+            guest_name = (kw.get('guest_name') or '').strip()
+            guest_email = (kw.get('guest_email') or '').strip()
+            guest_phone = (kw.get('guest_phone') or '').strip()
+            if not guest_name or not guest_email:
+                return request.render('next_booking.booking_step_confirm', self._confirm_page_values(
+                    room_type, free_rooms, property_id, date_from, date_to, adults, children, rooms, df, dt,
+                    error='Please enter your name and email so the front desk can confirm your booking.',
+                    guest_name=guest_name, guest_email=guest_email, guest_phone=guest_phone))
+            partner = request.env['res.partner'].sudo()._find_or_create_guest(
+                guest_name, guest_email, guest_phone)
+            # Makes this session's next booking (and any other code reading
+            # this key) resolve to the same contact instead of creating a
+            # second one, without requiring the guest to log in.
+            request.session['next_guest_partner_id'] = partner.id
+        else:
+            partner = request.env.user.partner_id
 
         reservation = request.env['next.reservation'].sudo().create({
             'property_id': int(property_id),
-            'partner_id': partner.id if partner else request.env.ref('base.public_partner').id,
+            'partner_id': partner.id,
             'date_from': df,
             'date_to': dt,
             'adults': int(adults),
@@ -114,6 +148,20 @@ class NextBookingWebsite(http.Controller):
             'room_ids': [(6, 0, free_rooms.ids)],
             'booking_source': 'direct',
         })
+        # The confirm page just showed the guest a non-zero total
+        # (price_for_stay, recomputed here rather than trusted from the
+        # client) but next.reservation.create() leaves the folio with no
+        # lines at all - action_finalize() only ever posts the room-charge
+        # line at checkout, which is fine for front-desk/OTA flows nobody
+        # looks at before then, but left every online booking's folio
+        # showing 0 against a price the guest already saw. Posting it now,
+        # at the same amount, means action_finalize()'s own
+        # already-has-a-room_charge-line guard simply skips re-posting it
+        # at checkout - no double charge.
+        price = room_type.price_for_stay(df, dt, int(adults), int(children))
+        if price and reservation.folio_id:
+            reservation.folio_id.add_line(
+                'Room charge (%s nights)' % reservation.nights, price, line_type='room_charge')
         # Payment integration point: redirect into Odoo's standard payment
         # flow for this reservation's folio amount; left as a redirect to the
         # portal booking page in this scaffold so the module installs clean
