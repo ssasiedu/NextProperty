@@ -91,7 +91,19 @@ class NextOwnerPortal(CustomerPortal):
         if not partner:
             return request.redirect('/my')
         properties = partner.owned_property_ids
-        return request.render('next_owner_portal.owner_portal_home', {'properties': properties})
+        # Rooms THIS owner owns within each property, not the property's
+        # total room count - a co-owned property (see rule_next_room_owner's
+        # docstring) would otherwise show a room count that includes rooms
+        # the other co-owner owns, which this page has no business implying.
+        property_room_counts = {
+            prop.id: len(partner.owned_room_ids.filtered(lambda r: r.property_id.id == prop.id))
+            for prop in properties
+        }
+        return request.render('next_owner_portal.owner_portal_home', {
+            'properties': properties,
+            'property_room_counts': property_room_counts,
+            'total_rooms': len(partner.owned_room_ids),
+        })
 
     @http.route('/my/owner/net-revenue', type='http', auth='user', website=True)
     def owner_net_revenue(self, **kw):
