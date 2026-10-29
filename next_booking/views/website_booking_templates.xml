@@ -178,4 +178,19 @@
         </div>
     </t>
 </template>
+
+<!-- Only reached when there was nothing to pay (amount_due <= 0) for a
+     public/anonymous guest, who has no account to send to /my/bookings -
+     see book_confirm() in booking_website.py. -->
+<template id="booking_step_thankyou" name="Booking - Thank You">
+    <t t-call="website.layout">
+        <div class="container py-5 text-center">
+            <h1 class="mb-3">Thank You!</h1>
+            <p class="lead">Your booking <strong><t t-esc="reservation.name"/></strong> at
+                <t t-esc="reservation.property_id.name"/> is confirmed for
+                <t t-esc="reservation.date_from"/> to <t t-esc="reservation.date_to"/>.</p>
+            <p class="text-muted">A confirmation has been sent to the email you provided.</p>
+        </div>
+    </t>
+</template>
 </odoo>

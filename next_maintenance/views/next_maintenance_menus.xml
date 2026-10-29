@@ -1,12 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- Giving the root an action AND children made the web client land on
+         the first child instead of this action - which made the existing
+         assign/status/block-room request flow (action_next_maintenance_request)
+         effectively disappear behind "Equipment" the moment that submenu was
+         added. The root is now a pure parent with every destination as an
+         explicit, ordered child - Maintenance Requests first, exactly as
+         before, with Equipment/Equipment Cost Log added alongside it rather
+         than displacing it. -->
     <menuitem id="menu_next_maintenance_root" name="Maintenance" parent="next_base.menu_next_root" sequence="40"
+              groups="next_base.group_next_maintenance_officer,next_base.group_next_manager"/>
+    <menuitem id="menu_next_maintenance_requests" name="Maintenance Requests" parent="menu_next_maintenance_root" sequence="10"
               action="action_next_maintenance_request"
               groups="next_base.group_next_maintenance_officer,next_base.group_next_manager"/>
-    <menuitem id="menu_next_maintenance_equipment" name="Equipment" parent="menu_next_maintenance_root" sequence="10"
+    <menuitem id="menu_next_maintenance_equipment" name="Equipment" parent="menu_next_maintenance_root" sequence="20"
               action="action_next_equipment_dashboard"
               groups="next_base.group_next_maintenance_supervisor,next_base.group_next_manager"/>
-    <menuitem id="menu_next_maintenance_equipment_cost" name="Equipment Cost Log" parent="menu_next_maintenance_root" sequence="20"
+    <menuitem id="menu_next_maintenance_equipment_cost" name="Equipment Cost Log" parent="menu_next_maintenance_root" sequence="30"
               action="action_next_equipment_cost_report"
               groups="next_base.group_next_maintenance_supervisor,next_base.group_next_manager"/>
 </odoo>
