@@ -1,6 +1,6 @@
 {
     'name': 'NEXT Property Management - Housekeeping',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Industries/Hospitality',
     'summary': 'Housekeeping task management and room-status automation',
     'description': """

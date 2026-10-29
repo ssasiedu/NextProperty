@@ -4,6 +4,12 @@
 <template id="portal_my_home_next_inherit" inherit_id="portal.portal_my_home" name="Portal Home: Bookings">
     <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
         <t t-call="portal.portal_docs_entry">
+            <!-- Same icon mechanism the built-in cards use (e.g. account's
+                 bill.svg, sale's bag.svg): a small svg shipped under this
+                 module's own static/src/img and referenced by its web path -
+                 no manifest/assets entry needed, module static files are
+                 served automatically. -->
+            <t t-set="icon" t-value="'/next_booking/static/src/img/booking-calendar.svg'"/>
             <t t-set="title">My Bookings</t>
             <t t-set="url" t-value="'/my/bookings'"/>
             <t t-set="text">View your reservations, folio and invoices</t>
@@ -14,6 +20,7 @@
             <t t-set="placeholder_count" t-value="'reservation_count'"/>
         </t>
         <t t-call="portal.portal_docs_entry">
+            <t t-set="icon" t-value="'/next_booking/static/src/img/service-bell.svg'"/>
             <t t-set="title">Service Requests</t>
             <t t-set="url" t-value="'/my/service-requests'"/>
             <t t-set="text">Report a fault or request service during your stay</t>

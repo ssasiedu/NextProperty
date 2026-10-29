@@ -4,6 +4,7 @@
 <template id="portal_my_home_maintenance_inherit" inherit_id="portal.portal_my_home" name="Portal Home: My Maintenance Tickets">
     <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
         <t t-if="request.env.user.has_group('next_base.group_next_maintenance_officer')" t-call="portal.portal_docs_entry">
+            <t t-set="icon" t-value="'/next_maintenance/static/src/img/maintenance-wrench.svg'"/>
             <t t-set="title">My Maintenance Tickets</t>
             <t t-set="url" t-value="'/my/worker/maintenance'"/>
             <!-- see next_housekeeping's version of this template for why config_card
