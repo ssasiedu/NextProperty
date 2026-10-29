@@ -93,6 +93,27 @@
             <field name="email_subject">Maintenance update - room {room_number}</field>
             <field name="email_body"><![CDATA[<p>Maintenance update for room {room_number}: status is now <strong>{status}</strong>.</p>]]></field>
         </record>
+        <record id="tmpl_equipment_maintenance_due_soon" model="next.sms.template">
+            <field name="name">Equipment Preventive Maintenance Due Soon</field>
+            <field name="trigger_code">equipment_maintenance_due_soon</field>
+            <field name="body">Preventive maintenance for {equipment_name} ({room_number}) is due {due_date}. A ticket has been opened.</field>
+            <field name="email_subject">Preventive maintenance due soon - {equipment_name}</field>
+            <field name="email_body"><![CDATA[<p>Preventive maintenance for <strong>{equipment_name}</strong> ({room_number}) is due <strong>{due_date}</strong>.</p><p>A maintenance ticket has been opened and assigned to you.</p>]]></field>
+        </record>
+        <record id="tmpl_equipment_maintenance_overdue" model="next.sms.template">
+            <field name="name">Equipment Preventive Maintenance Overdue</field>
+            <field name="trigger_code">equipment_maintenance_overdue</field>
+            <field name="body">OVERDUE: preventive maintenance for {equipment_name} ({room_number}) was due {due_date}. Overdue penalty of {amount} logged.</field>
+            <field name="email_subject">OVERDUE - preventive maintenance for {equipment_name}</field>
+            <field name="email_body"><![CDATA[<p><strong>Preventive maintenance for {equipment_name} ({room_number}) is now overdue</strong> - it was due {due_date}.</p><p>An overdue penalty of <strong>{amount}</strong> has been logged against this equipment.</p>]]></field>
+        </record>
+        <record id="tmpl_equipment_maintenance_completed" model="next.sms.template">
+            <field name="name">Equipment Preventive Maintenance Completed</field>
+            <field name="trigger_code">equipment_maintenance_completed</field>
+            <field name="body">Preventive maintenance for {equipment_name} ({room_number}) completed. Cost: {amount}. Next due: {due_date}.</field>
+            <field name="email_subject">Preventive maintenance completed - {equipment_name}</field>
+            <field name="email_body"><![CDATA[<p>Preventive maintenance for <strong>{equipment_name}</strong> ({room_number}) has been completed. Cost: <strong>{amount}</strong>.</p><p>Next due: {due_date}.</p>]]></field>
+        </record>
         <record id="tmpl_owner_net_revenue_published" model="next.sms.template">
             <field name="name">Net Revenue Published</field>
             <field name="trigger_code">owner_net_revenue_published</field>

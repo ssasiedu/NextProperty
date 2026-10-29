@@ -1,1 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_next_equipment_supervisor,next.equipment.supervisor,maintenance.model_maintenance_equipment,next_base.group_next_maintenance_supervisor,1,1,1,1
+access_next_equipment_officer,next.equipment.officer,maintenance.model_maintenance_equipment,next_base.group_next_maintenance_officer,1,0,0,0
+access_next_equipment_cost_line_supervisor,next.equipment.cost.line.supervisor,model_next_equipment_cost_line,next_base.group_next_maintenance_supervisor,1,1,1,1
+access_next_equipment_cost_line_officer,next.equipment.cost.line.officer,model_next_equipment_cost_line,next_base.group_next_maintenance_officer,1,0,0,0

@@ -13,6 +13,7 @@
                     <field name="raised_by_type"/>
                     <field name="assigned_officer_id"/>
                     <field name="auto_block_room"/>
+                    <field name="actual_cost"/>
                     <field name="service_request_id" readonly="1"/>
                 </group>
             </xpath>

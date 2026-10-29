@@ -9,4 +9,5 @@ from . import trigger_booking
 from . import trigger_front_desk
 from . import trigger_housekeeping
 from . import trigger_maintenance
+from . import trigger_equipment
 from . import trigger_pos
