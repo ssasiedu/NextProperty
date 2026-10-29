@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
+from urllib.parse import urlencode
 
 from odoo import http
 from odoo.http import request
+from odoo.addons.payment import utils as payment_utils
 
 
 class NextBookingWebsite(http.Controller):
@@ -162,8 +164,34 @@ class NextBookingWebsite(http.Controller):
         if price and reservation.folio_id:
             reservation.folio_id.add_line(
                 'Room charge (%s nights)' % reservation.nights, price, line_type='room_charge')
-        # Payment integration point: redirect into Odoo's standard payment
-        # flow for this reservation's folio amount; left as a redirect to the
-        # portal booking page in this scaffold so the module installs clean
-        # without a specific payment acquirer configured.
-        return request.redirect('/my/bookings/%s' % reservation.id)
+
+        # Hand off into Odoo's own generic payment flow (already a next_booking
+        # dependency) rather than /my/bookings - that route is auth='user', so
+        # a public/anonymous guest (every website booking, unless they happened
+        # to be logged in) was bounced straight to a login wall immediately
+        # after booking, with the reservation left unpaid and unconfirmed.
+        # /payment/pay is auth='public' and handles exactly this "pay for an
+        # arbitrary record, no account required" case; payment_transaction.py
+        # (_post_process override) confirms the reservation and records the
+        # payment once the transaction actually completes.
+        amount_due = reservation.folio_id.amount_due if reservation.folio_id else 0.0
+        if amount_due > 0:
+            access_token = payment_utils.generate_access_token(
+                partner.id, amount_due, reservation.currency_id.id)
+            pay_params = {
+                'reference': reservation.name,
+                'amount': amount_due,
+                'currency_id': reservation.currency_id.id,
+                'partner_id': partner.id,
+                'access_token': access_token,
+            }
+            return request.redirect('/payment/pay?%s' % urlencode(pay_params))
+
+        # Nothing to pay (e.g. a 0-price stay) - nothing for /payment/pay to
+        # do either, so there's no payment event left to confirm it the way
+        # payment_transaction.py does for a paid booking. Confirm it here
+        # instead of leaving it stuck in 'draft' forever.
+        reservation.action_confirm()
+        if not request.env.user._is_public():
+            return request.redirect('/my/bookings/%s' % reservation.id)
+        return request.render('next_booking.booking_step_thankyou', {'reservation': reservation})

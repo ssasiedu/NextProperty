@@ -1,6 +1,6 @@
 {
     'name': 'NEXT Property Management - Booking Website & Guest Portal',
-    'version': '19.0.1.3.0',
+    'version': '19.0.1.4.0',
     'category': 'Industries/Hospitality',
     'summary': 'Website booking flow, availability engine and guest portal',
     'description': """
