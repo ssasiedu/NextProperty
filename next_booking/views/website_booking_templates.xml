@@ -2,20 +2,62 @@
 <odoo>
 <template id="booking_step_property" name="Booking - Select Property">
     <t t-call="website.layout">
-        <div class="container py-5">
-            <h1>Select a Property</h1>
-            <div class="row">
+        <div class="container py-5 next-book-property">
+            <div class="mb-4">
+                <h1 class="mb-1">Select a Property</h1>
+                <p class="text-muted mb-0">Choose where you'd like to stay to see available rooms and rates.</p>
+            </div>
+            <div class="row g-4">
                 <t t-foreach="properties" t-as="prop">
-                    <div class="col-md-4 mb-3">
-                        <div class="card p-3">
-                            <h4><t t-esc="prop.name"/></h4>
-                            <p><t t-esc="prop.city"/></p>
-                            <a t-attf-href="/book/dates?property_id=#{prop.id}" class="btn btn-primary">Select</a>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 next-book-card">
+                            <!-- bg-primary/text-primary (Bootstrap utilities) rather than a
+                                 hardcoded hex, so this picks up the site's own theme color
+                                 instead of one that could clash with it or drift from it. -->
+                            <div class="next-book-card-banner bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-between px-3">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M3 21V9l9-6 9 6v12" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+                                    <path d="M9 21v-7h6v7" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+                                </svg>
+                                <span t-if="prop.room_type_ids" class="next-book-card-badge bg-white bg-opacity-75 text-primary">
+                                    <t t-esc="len(prop.room_type_ids)"/> room type<t t-if="len(prop.room_type_ids) != 1">s</t>
+                                </span>
+                            </div>
+                            <div class="card-body d-flex flex-column">
+                                <h4 class="card-title mb-1"><t t-esc="prop.name"/></h4>
+                                <p class="text-muted small mb-3 flex-grow-1">
+                                    <t t-if="prop.city or prop.country_id">
+                                        <t t-esc="prop.city"/><t t-if="prop.city and prop.country_id">, </t><t t-esc="prop.country_id.name"/>
+                                    </t>
+                                    <t t-else="">&#160;</t>
+                                </p>
+                                <a t-attf-href="/book/dates?property_id=#{prop.id}" class="btn btn-primary">Select</a>
+                            </div>
                         </div>
                     </div>
                 </t>
             </div>
         </div>
+
+        <style>
+            .next-book-card {
+                border: 1px solid #E5E7EB;
+                border-radius: 14px;
+                overflow: hidden;
+                transition: box-shadow .15s ease, transform .15s ease;
+            }
+            .next-book-card:hover {
+                box-shadow: 0 10px 28px rgba(0, 0, 0, .1);
+                transform: translateY(-2px);
+            }
+            .next-book-card-banner { height: 92px; }
+            .next-book-card-badge {
+                font-size: .75rem;
+                font-weight: 600;
+                padding: 3px 11px;
+                border-radius: 999px;
+            }
+        </style>
     </t>
 </template>
 
