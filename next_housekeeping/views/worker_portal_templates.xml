@@ -4,6 +4,7 @@
 <template id="portal_my_home_housekeeping_inherit" inherit_id="portal.portal_my_home" name="Portal Home: My Housekeeping Tasks">
     <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
         <t t-if="request.env.user.has_group('next_base.group_next_housekeeping')" t-call="portal.portal_docs_entry">
+            <t t-set="icon" t-value="'/next_housekeeping/static/src/img/housekeeping-broom.svg'"/>
             <t t-set="title">My Housekeeping Tasks</t>
             <t t-set="url" t-value="'/my/worker/housekeeping'"/>
             <!-- portal.portal_docs_entry hides every card (d-none) unless either

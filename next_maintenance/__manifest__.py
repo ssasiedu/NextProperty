@@ -1,6 +1,6 @@
 {
     'name': 'NEXT Property Management - Maintenance',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Industries/Hospitality',
     'summary': 'Repair/fault request management extending Odoo Maintenance',
     'description': """

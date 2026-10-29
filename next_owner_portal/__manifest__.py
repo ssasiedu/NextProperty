@@ -1,6 +1,6 @@
 {
     'name': 'NEXT Property Management - Owner Portal',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Industries/Hospitality',
     'summary': 'Owner BI dashboard, manual net revenue, expenses, settlement statements, property viewings',
     'description': """
