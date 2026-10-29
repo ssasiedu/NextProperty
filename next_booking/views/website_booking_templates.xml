@@ -179,6 +179,66 @@
     </t>
 </template>
 
+<!-- Reached from /payment/confirmation (payment_portal.py's override) for
+     any transaction tied to a next.reservation - the generic payment.confirm
+     page's only call to action is href="/my/home" (auth='user'), which
+     bounced a public guest to a login wall right after paying. Reuses
+     payment.state_header/payment.summary_item for the same look (the
+     provider's own instructions - e.g. wire transfer details - still show
+     via tx_status_message inside state_header), with our own messaging and
+     a safe link instead. -->
+<template id="booking_payment_confirm" name="Booking - Payment Confirmation">
+    <t t-call="portal.frontend_layout">
+        <t t-set="page_title">Booking Confirmation</t>
+        <div class="wrap">
+            <div class="container">
+                <t t-call="payment.portal_breadcrumb"/>
+                <div class="row justify-content-center my-3">
+                    <div class="col-12 col-lg-7">
+                        <div class="row"><div class="col"><t t-call="payment.state_header"/></div></div>
+
+                        <div class="text-bg-light row row-cols-1 row-cols-md-3 mx-0 mb-3 py-2 rounded">
+                            <t t-call="payment.summary_item">
+                                <t t-set="name" t-value="'amount'"/>
+                                <t t-set="label">Amount</t>
+                                <t t-set="value" t-value="tx.amount"/>
+                                <t t-set="options" t-value="{'widget': 'monetary', 'display_currency': tx.currency_id}"/>
+                            </t>
+                            <t t-call="payment.summary_item">
+                                <t t-set="name" t-value="'reference'"/>
+                                <t t-set="label">Booking Reference</t>
+                                <t t-set="value" t-value="reservation.name"/>
+                                <t t-set="include_separator" t-value="True"/>
+                            </t>
+                            <t t-call="payment.summary_item">
+                                <t t-set="name" t-value="'provider'"/>
+                                <t t-set="label">Processed by</t>
+                                <t t-set="value" t-value="tx.provider_id.sudo().name"/>
+                                <t t-set="include_separator" t-value="True"/>
+                            </t>
+                        </div>
+
+                        <div class="alert alert-success" role="alert">
+                            <strong>Your booking has been received.</strong> Our front desk team will follow up
+                            with a call to confirm your reservation at
+                            <t t-esc="reservation.property_id.name"/> for
+                            <t t-esc="reservation.date_from"/> to <t t-esc="reservation.date_to"/>.
+                        </div>
+
+                        <div class="row">
+                            <div class="col offset-md-3 ps-0">
+                                <a role="button" class="btn btn-primary float-end" href="/book">
+                                    Back to Bookings <i class="oi oi-arrow-right ms-2"/>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+</template>
+
 <!-- Only reached when there was nothing to pay (amount_due <= 0) for a
      public/anonymous guest, who has no account to send to /my/bookings -
      see book_confirm() in booking_website.py. -->
