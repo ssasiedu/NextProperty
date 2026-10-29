@@ -8,16 +8,12 @@ class ResPartner(models.Model):
     @api.model
     def _find_or_create_ota_guest(self, payload):
         """Resolves (or creates) the guest partner for an incoming OTA
-        booking payload, matched by email/phone when possible."""
-        email = payload.get('guest_email')
-        name = payload.get('guest_name', 'OTA Guest')
-        partner = None
-        if email:
-            partner = self.search([('email', '=', email)], limit=1)
-        if not partner:
-            partner = self.create({
-                'name': name, 'email': email, 'phone': payload.get('guest_phone'),
-            })
+        booking payload, matched by email/phone when possible. Delegates to
+        the generic next_base._find_or_create_guest (next_booking's website
+        guest-details step uses the same method) rather than keeping its
+        own copy of the same match-by-email logic."""
+        partner = self._find_or_create_guest(
+            payload.get('guest_name', 'OTA Guest'), payload.get('guest_email'), payload.get('guest_phone'))
         return partner.id
 
 

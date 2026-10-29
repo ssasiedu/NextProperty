@@ -98,6 +98,7 @@
             <h1>Confirm Your Booking</h1>
             <p><t t-esc="room_type.name"/> &#8212; <t t-esc="date_from"/> to <t t-esc="date_to"/></p>
             <p>Total: <strong><t t-esc="price"/></strong></p>
+            <div t-if="error" class="alert alert-danger"><t t-esc="error"/></div>
             <form action="/book/confirm" method="post">
                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                 <input type="hidden" name="room_type_id" t-att-value="room_type.id"/>
@@ -107,6 +108,29 @@
                 <input type="hidden" name="adults" t-att-value="adults"/>
                 <input type="hidden" name="children" t-att-value="children"/>
                 <input type="hidden" name="rooms" t-att-value="rooms"/>
+                <!-- A public/anonymous booker has no partner record of their
+                     own yet - without these, front desk had a confirmed
+                     booking with literally no name, email or phone to follow
+                     up on. A logged-in guest already has a real partner_id,
+                     so this section doesn't show at all. -->
+                <div t-if="is_public" class="row g-3 mb-3">
+                    <h5 class="mt-2">Your Details</h5>
+                    <div class="col-md-4">
+                        <label>Full Name</label>
+                        <input type="text" name="guest_name" class="form-control" required="required"
+                               t-att-value="guest_name or ''"/>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Email</label>
+                        <input type="email" name="guest_email" class="form-control" required="required"
+                               t-att-value="guest_email or ''"/>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Phone</label>
+                        <input type="tel" name="guest_phone" class="form-control"
+                               t-att-value="guest_phone or ''"/>
+                    </div>
+                </div>
                 <button type="submit" class="btn btn-success btn-lg">Confirm &amp; Pay</button>
             </form>
         </div>

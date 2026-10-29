@@ -1,6 +1,6 @@
 {
     'name': 'NEXT Property Management - Channel Manager',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Industries/Hospitality',
     'summary': 'OTA synchronization with a concurrency-safe availability ledger (zero double-bookings)',
     'description': """
