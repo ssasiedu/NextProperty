@@ -3,4 +3,10 @@
     <menuitem id="menu_next_maintenance_root" name="Maintenance" parent="next_base.menu_next_root" sequence="40"
               action="action_next_maintenance_request"
               groups="next_base.group_next_maintenance_officer,next_base.group_next_manager"/>
+    <menuitem id="menu_next_maintenance_equipment" name="Equipment" parent="menu_next_maintenance_root" sequence="10"
+              action="action_next_equipment_dashboard"
+              groups="next_base.group_next_maintenance_supervisor,next_base.group_next_manager"/>
+    <menuitem id="menu_next_maintenance_equipment_cost" name="Equipment Cost Log" parent="menu_next_maintenance_root" sequence="20"
+              action="action_next_equipment_cost_report"
+              groups="next_base.group_next_maintenance_supervisor,next_base.group_next_manager"/>
 </odoo>

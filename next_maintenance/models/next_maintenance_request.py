@@ -40,6 +40,12 @@ class MaintenanceRequest(models.Model):
                                           help='Set when this ticket was escalated from a guest '
                                                'service request raised through the portal.')
 
+    actual_cost = fields.Float(
+        string='Actual Cost', help='What this ticket actually cost (parts/labour/callout fee). '
+                                    'For a preventive ticket, logged to the equipment\'s cost log '
+                                    'and rolled into its Total Maintenance Cost when this ticket '
+                                    'is verified - leave at 0 if there was no cost or none was tracked.')
+
     @api.model_create_multi
     def create(self, vals_list):
         records = super().create(vals_list)
@@ -83,6 +89,12 @@ class MaintenanceRequest(models.Model):
                 rec.next_room_id.action_clear_block()
             if rec.service_request_id:
                 rec.service_request_id.action_resolve()
+            if rec.maintenance_type == 'preventive' and rec.equipment_id:
+                # Rolls the equipment's schedule forward and logs
+                # actual_cost (if the officer filled it in) to its cost
+                # log - see maintenance.equipment.action_log_maintenance_done.
+                rec.equipment_id.action_log_maintenance_done(
+                    cost=rec.actual_cost, description='Preventive ticket %s completed' % rec.name)
         return res
 
     def action_assign(self, officer=None):

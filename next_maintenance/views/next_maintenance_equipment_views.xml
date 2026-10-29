@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_equipment_form_next_inherit" model="ir.ui.view">
+        <field name="name">maintenance.equipment.form.next.inherit</field>
+        <field name="model">maintenance.equipment</field>
+        <field name="inherit_id" ref="maintenance.hr_equipment_view_form"/>
+        <field name="arch" type="xml">
+            <notebook position="inside">
+                <page string="Preventive Maintenance (NEXT)" name="next_preventive">
+                    <group>
+                        <group string="Location">
+                            <field name="next_property_id"/>
+                            <field name="next_room_id"/>
+                            <field name="maintenance_supervisor_id"/>
+                        </group>
+                        <group string="Schedule">
+                            <field name="preventive_interval_days"/>
+                            <field name="next_maintenance_date"/>
+                            <field name="alert_lead_days"/>
+                            <field name="overdue_grace_days"/>
+                            <field name="overdue_penalty_amount"/>
+                            <field name="preventive_overdue"/>
+                            <field name="days_until_due"/>
+                        </group>
+                    </group>
+                    <group string="Cost">
+                        <field name="total_maintenance_cost"/>
+                    </group>
+                    <field name="cost_line_ids">
+                        <list editable="bottom">
+                            <field name="date"/>
+                            <field name="cost_type"/>
+                            <field name="description"/>
+                            <field name="amount" sum="Total"/>
+                            <field name="maintenance_request_id"/>
+                        </list>
+                    </field>
+                </page>
+            </notebook>
+        </field>
+    </record>
+
+    <record id="view_equipment_tree_next_inherit" model="ir.ui.view">
+        <field name="name">maintenance.equipment.tree.next.inherit</field>
+        <field name="model">maintenance.equipment</field>
+        <field name="inherit_id" ref="maintenance.hr_equipment_view_tree"/>
+        <field name="arch" type="xml">
+            <list position="inside">
+                <field name="next_property_id" optional="show"/>
+                <field name="next_room_id" optional="show"/>
+                <field name="next_maintenance_date" optional="show"/>
+                <field name="days_until_due" optional="show"/>
+                <field name="preventive_overdue" optional="show" widget="boolean_toggle"/>
+                <field name="total_maintenance_cost" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_equipment_search_next_inherit" model="ir.ui.view">
+        <field name="name">maintenance.equipment.search.next.inherit</field>
+        <field name="model">maintenance.equipment</field>
+        <field name="inherit_id" ref="maintenance.hr_equipment_view_search"/>
+        <field name="arch" type="xml">
+            <field name="category_id" position="after">
+                <field name="next_property_id"/>
+                <field name="next_room_id"/>
+                <field name="maintenance_supervisor_id"/>
+            </field>
+            <filter name="under_maintenance" position="after">
+                <filter string="Preventive Overdue" name="next_overdue" domain="[('preventive_overdue', '=', True)]"/>
+                <filter string="Due Within 14 Days" name="next_due_soon"
+                        domain="[('preventive_overdue', '=', False), ('next_maintenance_date', '!=', False),
+                                 ('next_maintenance_date', '&lt;=', (context_today() + relativedelta(days=14)).strftime('%Y-%m-%d'))]"/>
+            </filter>
+            <filter name="category" position="after">
+                <filter string="Property" name="next_group_property" domain="[]" context="{'group_by': 'next_property_id'}"/>
+            </filter>
+        </field>
+    </record>
+
+    <record id="view_equipment_cost_line_pivot" model="ir.ui.view">
+        <field name="name">next.equipment.cost.line.pivot</field>
+        <field name="model">next.equipment.cost.line</field>
+        <field name="arch" type="xml">
+            <pivot string="Equipment Maintenance Cost">
+                <field name="next_property_id" type="row"/>
+                <field name="cost_type" type="col"/>
+                <field name="amount" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_equipment_cost_line_list" model="ir.ui.view">
+        <field name="name">next.equipment.cost.line.list</field>
+        <field name="model">next.equipment.cost.line</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="date"/>
+                <field name="equipment_id"/>
+                <field name="next_property_id"/>
+                <field name="cost_type"/>
+                <field name="description"/>
+                <field name="amount" sum="Total"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Dashboard: "the list of equipments and their date due for
+         maintenance" - scoped to NEXT equipment only (next_property_id
+         set), with the overdue/due-soon filters above and a Property
+         group-by front and center. -->
+    <record id="action_next_equipment_dashboard" model="ir.actions.act_window">
+        <field name="name">Equipment</field>
+        <field name="res_model">maintenance.equipment</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('next_property_id', '!=', False)]</field>
+        <field name="context">{'search_default_next_group_property': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Record your first piece of equipment</p>
+            <p>Track property equipment (generators, HVAC, kitchen gear...), schedule preventive
+               maintenance, and get alerted - with a cost penalty logged automatically - if it slips.</p>
+        </field>
+    </record>
+
+    <record id="action_next_equipment_cost_report" model="ir.actions.act_window">
+        <field name="name">Equipment Cost Log</field>
+        <field name="res_model">next.equipment.cost.line</field>
+        <field name="view_mode">pivot,list</field>
+    </record>
+
+    <!-- Lets a supervisor trigger the management report on demand from the
+         Equipment list's Action (gear) menu instead of waiting for the
+         monthly cron. -->
+    <record id="action_server_send_equipment_report" model="ir.actions.server">
+        <field name="name">Send Equipment Report to Management Now</field>
+        <field name="model_id" ref="maintenance.model_maintenance_equipment"/>
+        <field name="binding_model_id" ref="maintenance.model_maintenance_equipment"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">model._send_equipment_report_to_management()</field>
+    </record>
+
+</odoo>
