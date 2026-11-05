@@ -170,6 +170,34 @@
             <field name="email_subject">Room {room_number} status change</field>
             <field name="email_body"><![CDATA[<p>Room {room_number} at {property_name} changed status to <strong>{status}</strong>.</p>]]></field>
         </record>
+        <record id="tmpl_owner_billing_invoice_raised" model="next.sms.template">
+            <field name="name">Service Charge Bill Raised</field>
+            <field name="trigger_code">owner_billing_invoice_raised</field>
+            <field name="body">A service charge of {amount} for {property_name} ({period}) is due {due_date}.</field>
+            <field name="email_subject">Service charge bill - {property_name}</field>
+            <field name="email_body"><![CDATA[<p>A service charge of <strong>{amount}</strong> for {property_name} ({period}) is due <strong>{due_date}</strong>.</p>]]></field>
+        </record>
+        <record id="tmpl_owner_billing_payment_reported" model="next.sms.template">
+            <field name="name">Owner Reported a Payment</field>
+            <field name="trigger_code">owner_billing_payment_reported</field>
+            <field name="body">{owner_name} reported a payment of {amount} for bill {bill_name} ({property_name}) - please confirm.</field>
+            <field name="email_subject">Payment reported - {bill_name}</field>
+            <field name="email_body"><![CDATA[<p>{owner_name} reported a payment of <strong>{amount}</strong> for bill {bill_name} ({property_name}) - please confirm.</p>]]></field>
+        </record>
+        <record id="tmpl_owner_billing_payment_confirmed" model="next.sms.template">
+            <field name="name">Service Charge Payment Confirmed</field>
+            <field name="trigger_code">owner_billing_payment_confirmed</field>
+            <field name="body">Your payment of {amount} for {property_name} has been confirmed. Balance: {balance}.</field>
+            <field name="email_subject">Payment confirmed - {bill_name}</field>
+            <field name="email_body"><![CDATA[<p>Your payment of <strong>{amount}</strong> for {property_name} has been confirmed. Balance: <strong>{balance}</strong>.</p>]]></field>
+        </record>
+        <record id="tmpl_owner_billing_defaulter_reminder" model="next.sms.template">
+            <field name="name">Service Charge Defaulter Reminder</field>
+            <field name="trigger_code">owner_billing_defaulter_reminder</field>
+            <field name="body">Reminder: {property_name} service charge for {period} (balance {balance}) was due {due_date}. Please settle it.</field>
+            <field name="email_subject">Overdue service charge - {property_name}</field>
+            <field name="email_body"><![CDATA[<p>Reminder: your {property_name} service charge for {period} (balance <strong>{balance}</strong>) was due {due_date}. Please settle it as soon as possible.</p>]]></field>
+        </record>
         <record id="tmpl_channel_ota_booking_received" model="next.sms.template">
             <field name="name">OTA Booking Received</field>
             <field name="trigger_code">channel_ota_booking_received</field>

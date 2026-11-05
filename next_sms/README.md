@@ -70,6 +70,9 @@ code for: `owner_net_revenue_published`, `owner_viewing_requested`,
 `owner_viewing_confirmed`, `owner_room_status_change`, and
 `channel_ota_booking_received`. `auth_otp` is provided as a template for use
 by whatever 2FA mechanism you wire into portal login (optional per spec).
+`next_owner_billing` (built after this module too) calls back in the same
+way for `owner_billing_invoice_raised`, `owner_billing_payment_reported`,
+`owner_billing_payment_confirmed` and `owner_billing_defaulter_reminder`.
 
 ## Assumption
 No Hubtel sender ID/credential format was supplied — `next.sms.provider`

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<!-- Adds a "Service Charge" shortcut to the owner home page's property
+     card alongside Net Revenue/Room Status/Viewings/Report a Fault. -->
+<template id="portal_my_home_owner_billing_inherit" inherit_id="next_owner_portal.owner_portal_home">
+    <xpath expr="//a[@href='/my/owner/tickets']" position="after">
+        <a href="/my/owner/billing" class="btn next-owner-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/>
+                <path d="M2 10h20" stroke="currentColor" stroke-width="1.8"/>
+            </svg>
+            Service Charge
+        </a>
+    </xpath>
+</template>
+
+<template id="portal_owner_billing" name="Owner Portal - Service Charge Billing">
+    <t t-call="portal.portal_layout">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="mb-0">Service Charge</h2>
+            <div class="text-end">
+                <div class="text-muted small">Balance Due</div>
+                <div class="fs-4 fw-bold" t-attf-style="color:#{'#B42318' if balance > 0 else '#027A48'};">
+                    <t t-esc="'%.2f' % balance"/>
+                </div>
+            </div>
+        </div>
+        <a href="/my/owner/billing/statement" class="btn btn-secondary mb-3" target="_blank">Download Statement</a>
+
+        <table class="table">
+            <thead><tr>
+                <th>Bill</th><th>Property</th><th>Period</th><th>Due</th>
+                <th>Amount</th><th>Balance</th><th>Status</th><th/>
+            </tr></thead>
+            <tbody>
+                <tr t-if="not bills"><td colspan="8" class="text-muted">No bills yet.</td></tr>
+                <tr t-foreach="bills" t-as="bill">
+                    <td><t t-esc="bill.name"/></td>
+                    <td><t t-esc="bill.property_id.name"/></td>
+                    <td><t t-esc="bill.period_month"/>/<t t-esc="bill.period_year"/></td>
+                    <td><t t-esc="bill.due_date"/></td>
+                    <td><span t-field="bill.amount"/></td>
+                    <td><span t-field="bill.balance"/></td>
+                    <td>
+                        <span t-if="bill.payment_state == 'unpaid'" class="badge text-bg-secondary">Unpaid</span>
+                        <span t-if="bill.payment_state == 'partially_paid'" class="badge text-bg-warning">Partially Paid</span>
+                        <span t-if="bill.payment_state == 'paid'" class="badge text-bg-success">Paid</span>
+                        <span t-if="bill.has_pending_report" class="badge text-bg-info ms-1">Awaiting Confirmation</span>
+                        <span t-if="bill.is_defaulter" class="badge text-bg-danger ms-1">Overdue</span>
+                    </td>
+                    <td>
+                        <form t-if="bill.balance > 0" t-attf-action="/my/owner/billing" method="post" class="d-flex gap-1">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <input type="hidden" name="bill_id" t-att-value="bill.id"/>
+                            <input type="number" step="0.01" name="amount" class="form-control form-control-sm"
+                                   placeholder="Amount" t-att-value="bill.balance" style="width:100px;"/>
+                            <input type="text" name="reference" class="form-control form-control-sm"
+                                   placeholder="Reference" style="width:120px;"/>
+                            <button type="submit" class="btn btn-sm btn-primary">I've Paid</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </t>
+</template>
+
+</odoo>

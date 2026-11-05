@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_next_owner_service_charge_form" model="ir.ui.view">
+        <field name="name">next.owner.service.charge.form</field>
+        <field name="model">next.owner.service.charge</field>
+        <field name="arch" type="xml">
+            <form string="Owner Service Charge">
+                <header>
+                    <button name="action_view_bills" string="View Bills" type="object" class="btn-secondary"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_bills" type="object" class="oe_stat_button" icon="fa-list">
+                            <field name="bill_count" widget="statinfo" string="Bills"/>
+                        </button>
+                    </div>
+                    <div class="oe_title"><h1><field name="owner_id"/></h1></div>
+                    <group>
+                        <group>
+                            <field name="property_id"/>
+                            <field name="amount"/>
+                            <field name="currency_id" groups="base.group_no_one"/>
+                        </group>
+                        <group>
+                            <field name="billing_day"/>
+                            <field name="due_days"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_next_owner_service_charge_list" model="ir.ui.view">
+        <field name="name">next.owner.service.charge.list</field>
+        <field name="model">next.owner.service.charge</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="owner_id"/>
+                <field name="property_id"/>
+                <field name="amount" sum="Total"/>
+                <field name="billing_day"/>
+                <field name="due_days"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_next_owner_service_charge" model="ir.actions.act_window">
+        <field name="name">Service Charges</field>
+        <field name="res_model">next.owner.service.charge</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Set up the first recurring service charge</p>
+            <p>A monthly fee billed to a property owner - a bill is raised automatically
+               each month on the chosen billing day.</p>
+        </field>
+    </record>
+
+</odoo>

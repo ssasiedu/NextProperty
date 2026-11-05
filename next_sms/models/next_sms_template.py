@@ -31,6 +31,10 @@ TRIGGER_CODES = [
     ('owner_viewing_requested', 'Owner Portal: Viewing Requested'),
     ('owner_viewing_confirmed', 'Owner Portal: Viewing Confirmed/Rescheduled'),
     ('owner_room_status_change', 'Owner Portal: Room Status Change'),
+    ('owner_billing_invoice_raised', 'Owner Billing: Service Charge Bill Raised'),
+    ('owner_billing_payment_reported', 'Owner Billing: Owner Reported a Payment'),
+    ('owner_billing_payment_confirmed', 'Owner Billing: Payment Confirmed'),
+    ('owner_billing_defaulter_reminder', 'Owner Billing: Defaulter Reminder'),
     ('channel_ota_booking_received', 'Channel Manager: OTA Booking Received'),
     ('auth_otp', 'Auth: OTP/2FA for Owner/Guest Portal Login'),
 ]

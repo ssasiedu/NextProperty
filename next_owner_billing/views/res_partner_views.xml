@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_partner_form_next_owner_billing_inherit" model="ir.ui.view">
+        <field name="name">res.partner.form.next.owner.billing.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="next_base.view_partner_form_next_inherit"/>
+        <field name="arch" type="xml">
+            <group string="Owned Rooms" position="after">
+                <group string="Service Charge" invisible="not is_property_owner">
+                    <field name="owner_billing_balance"/>
+                    <field name="owner_billing_is_defaulter"/>
+                    <field name="owner_bill_ids" nolabel="1">
+                        <list create="0" delete="0" edit="0">
+                            <field name="name"/>
+                            <field name="property_id"/>
+                            <field name="period_month"/>
+                            <field name="period_year"/>
+                            <field name="due_date"/>
+                            <field name="amount"/>
+                            <field name="balance"/>
+                            <field name="payment_state"/>
+                        </list>
+                    </field>
+                    <button name="%(action_report_next_owner_bill_statement)d" string="Print Statement"
+                            type="action" class="btn-secondary"/>
+                </group>
+            </group>
+        </field>
+    </record>
+
+</odoo>
