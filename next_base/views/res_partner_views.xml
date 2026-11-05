@@ -16,7 +16,7 @@
                     <group string="Owned Properties" invisible="not is_property_owner">
                         <field name="owned_property_ids" widget="many2many_tags" nolabel="1"/>
                     </group>
-                    <group string="Owned Rooms" invisible="not is_property_owner">
+                    <group name="next_owned_rooms" string="Owned Rooms" invisible="not is_property_owner">
                         <!-- Read-only summary, computed from Owned Properties above
                              (plus any explicit per-room override) - not itself an
                              editable membership list, so no create/delete controls. -->

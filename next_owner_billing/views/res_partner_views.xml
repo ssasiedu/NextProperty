@@ -6,7 +6,7 @@
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="next_base.view_partner_form_next_inherit"/>
         <field name="arch" type="xml">
-            <group string="Owned Rooms" position="after">
+            <group name="next_owned_rooms" position="after">
                 <group string="Service Charge" invisible="not is_property_owner">
                     <field name="owner_billing_balance"/>
                     <field name="owner_billing_is_defaulter"/>
