@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Team review item #8: a short, standard guest-feedback survey, seeded
+         once so it's ready out of the box - property staff can still edit
+         its questions/wording from the regular Surveys app afterwards
+         (noupdate="1" means an upgrade never overwrites those edits).
+         next.reservation.action_check_out() (next_reservation_survey.py)
+         issues one answer (survey.user_input) per stay against this
+         survey_id and emails/chats the guest its public fill-in link. -->
+    <data noupdate="1">
+
+        <record id="survey_next_guest_feedback" model="survey.survey">
+            <field name="title">Guest Stay Feedback</field>
+            <field name="description"><![CDATA[<p>We'd love to hear about your stay - it only takes a minute.</p>]]></field>
+            <field name="users_login_required" eval="False"/>
+            <field name="questions_layout">one_page</field>
+            <field name="access_mode">public</field>
+        </record>
+
+        <record id="survey_next_guest_feedback_q1" model="survey.question">
+            <field name="survey_id" ref="survey_next_guest_feedback"/>
+            <field name="sequence">1</field>
+            <field name="title">Overall, how would you rate your stay?</field>
+            <field name="question_type">scale</field>
+            <field name="scale_min">1</field>
+            <field name="scale_max">5</field>
+            <field name="scale_min_label">Poor</field>
+            <field name="scale_max_label">Excellent</field>
+            <field name="constr_mandatory" eval="True"/>
+        </record>
+
+        <record id="survey_next_guest_feedback_q2" model="survey.question">
+            <field name="survey_id" ref="survey_next_guest_feedback"/>
+            <field name="sequence">2</field>
+            <field name="title">How clean was your room?</field>
+            <field name="question_type">scale</field>
+            <field name="scale_min">1</field>
+            <field name="scale_max">5</field>
+            <field name="scale_min_label">Poor</field>
+            <field name="scale_max_label">Excellent</field>
+        </record>
+
+        <record id="survey_next_guest_feedback_q3" model="survey.question">
+            <field name="survey_id" ref="survey_next_guest_feedback"/>
+            <field name="sequence">3</field>
+            <field name="title">How would you rate our staff?</field>
+            <field name="question_type">scale</field>
+            <field name="scale_min">1</field>
+            <field name="scale_max">5</field>
+            <field name="scale_min_label">Poor</field>
+            <field name="scale_max_label">Excellent</field>
+        </record>
+
+        <record id="survey_next_guest_feedback_q4" model="survey.question">
+            <field name="survey_id" ref="survey_next_guest_feedback"/>
+            <field name="sequence">4</field>
+            <field name="title">Would you recommend us to a friend?</field>
+            <field name="question_type">simple_choice</field>
+            <field name="suggested_answer_ids" eval="[(0, 0, {'value': 'Yes'}), (0, 0, {'value': 'No'})]"/>
+        </record>
+
+        <record id="survey_next_guest_feedback_q5" model="survey.question">
+            <field name="survey_id" ref="survey_next_guest_feedback"/>
+            <field name="sequence">5</field>
+            <field name="title">Anything else you'd like us to know?</field>
+            <field name="question_type">text_box</field>
+        </record>
+
+    </data>
+</odoo>

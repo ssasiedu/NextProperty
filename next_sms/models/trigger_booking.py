@@ -46,6 +46,20 @@ class NextReservation(models.Model):
                                    placeholders=_reservation_placeholders(rec), related_record=rec)
         return res
 
+    def _next_issue_feedback_survey(self):
+        """Adds an SMS invite alongside next_booking's default chatter note
+        + email (next_reservation_survey.py) - same "extend, don't require"
+        pattern as every other trigger in this file."""
+        had_answer_before = bool(self.survey_user_input_id)
+        res = super()._next_issue_feedback_survey()
+        if not had_answer_before and self.survey_user_input_id:
+            self.env['next.sms.template'].send_trigger(
+                'checkout_feedback_survey', self.partner_id,
+                property_id=self.property_id.id,
+                placeholders=dict(_reservation_placeholders(self), feedback_url=self.survey_feedback_url),
+                related_record=self)
+        return res
+
     def _cron_send_checkin_reminders(self):
         """Daily cron (see data/next_sms_cron.xml): sends the 24h pre
         check-in reminder to every confirmed reservation checking in

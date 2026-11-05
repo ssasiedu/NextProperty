@@ -62,6 +62,9 @@
         <a t-if="reservation.state in ('confirmed', 'checked_in')"
            t-attf-href="/my/service-requests/new?reservation_id=#{reservation.id}"
            class="btn btn-primary ms-2">Report a Fault / Request Service</a>
+        <a t-if="reservation.state == 'checked_out' and reservation.survey_feedback_url"
+           t-att-href="reservation.survey_feedback_url" target="_blank"
+           class="btn btn-success ms-2">Give Feedback</a>
     </t>
 </template>
 
