@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_next_occupancy_report_wizard_form" model="ir.ui.view">
+        <field name="name">next.occupancy.report.wizard.form</field>
+        <field name="model">next.occupancy.report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Occupancy Rate Report">
+                <group>
+                    <field name="property_ids" widget="many2many_tags"/>
+                    <field name="period_type"/>
+                    <field name="anchor_date"/>
+                </group>
+                <field name="result_html"/>
+                <footer>
+                    <button name="action_compute" string="Compute" type="object" class="btn-primary"/>
+                    <button string="Close" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_next_occupancy_report_wizard" model="ir.actions.act_window">
+        <field name="name">Occupancy Rate Report</field>
+        <field name="res_model">next.occupancy.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>
