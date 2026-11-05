@@ -38,6 +38,10 @@
                             <div style="font-size:20px;font-weight:700;"><span t-esc="data['total_cost']" t-options="{'widget': 'float', 'precision': 2}"/></div>
                             <div class="text-muted small">Total Cost to Date</div>
                         </div>
+                        <div class="col-2">
+                            <div style="font-size:20px;font-weight:700;color:#B42318;"><t t-esc="len(data['replacement_candidates'])"/></div>
+                            <div class="text-muted small">Replacement Candidates</div>
+                        </div>
                     </div>
 
                     <h4>Equipment Breakdown</h4>
@@ -92,6 +96,26 @@
                                     </span>
                                     <span t-else="">-</span>
                                 </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4 class="mt-4">Replacement Candidates</h4>
+                    <p class="text-muted" style="margin-top:-8px;">Cumulative maintenance cost has reached 70%+ of purchase cost - repairing further may cost more than replacing.</p>
+                    <table class="table table-sm">
+                        <thead><tr>
+                            <th>Equipment</th><th>Property</th><th>Room</th>
+                            <th class="text-end">Purchase Cost</th><th class="text-end">Maintenance Cost</th><th class="text-end">Ratio</th>
+                        </tr></thead>
+                        <tbody>
+                            <tr t-if="not data['replacement_candidates']"><td colspan="6" class="text-muted">None - no equipment has crossed the threshold.</td></tr>
+                            <tr t-foreach="data['replacement_candidates']" t-as="rc">
+                                <td><t t-esc="rc.name"/></td>
+                                <td><t t-esc="rc.next_property_id.name or '-'"/></td>
+                                <td><t t-esc="rc.next_room_id.name or 'Property-wide'"/></td>
+                                <td class="text-end"><span t-field="rc.cost"/></td>
+                                <td class="text-end"><span t-field="rc.total_maintenance_cost"/></td>
+                                <td class="text-end"><t t-esc="round(rc.maintenance_cost_ratio * 100)"/>%</td>
                             </tr>
                         </tbody>
                     </table>
