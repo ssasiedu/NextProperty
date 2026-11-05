@@ -140,6 +140,10 @@
             <h1>Confirm Your Booking</h1>
             <p><t t-esc="room_type.name"/> &#8212; <t t-esc="date_from"/> to <t t-esc="date_to"/></p>
             <p>Total: <strong><t t-esc="price"/></strong></p>
+            <div t-if="deposit_pct" class="alert alert-info">
+                A deposit of <strong><t t-esc="deposit_amount"/></strong> (<t t-esc="deposit_pct"/>%) is required
+                now to confirm this booking. The remaining balance is settled at the property.
+            </div>
             <div t-if="error" class="alert alert-danger"><t t-esc="error"/></div>
             <form action="/book/confirm" method="post">
                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
@@ -223,6 +227,10 @@
                             with a call to confirm your reservation at
                             <t t-esc="reservation.property_id.name"/> for
                             <t t-esc="reservation.date_from"/> to <t t-esc="reservation.date_to"/>.
+                            <t t-if="reservation.deposit_required">
+                                This payment covers your deposit of <t t-esc="reservation.deposit_amount"/>;
+                                the remaining balance is settled at the property.
+                            </t>
                         </div>
 
                         <div class="row">

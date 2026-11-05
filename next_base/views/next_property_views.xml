@@ -28,6 +28,7 @@
                             <field name="currency_id"/>
                             <field name="company_id" groups="base.group_multi_company"/>
                             <field name="manager_id"/>
+                            <field name="online_deposit_percentage"/>
                         </group>
                     </group>
                     <group string="Owners">
