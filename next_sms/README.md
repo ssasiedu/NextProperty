@@ -58,7 +58,7 @@ below) by extending their models' action methods:
 | checkout_discrepancy | `models/trigger_front_desk.py` → checkout wizard |
 | qr_order_received / qr_order_ready | `models/trigger_pos.py` → `next.qr.order` |
 | housekeeping_room_ready / task_overdue | `models/trigger_housekeeping.py` |
-| maintenance_new_ticket / status_update | `models/trigger_maintenance.py` |
+| maintenance_new_ticket / status_update / external_team_requested | `models/trigger_maintenance.py` |
 | equipment_maintenance_due_soon / overdue / completed | `models/trigger_equipment.py` → next_maintenance's `maintenance.equipment` preventive-maintenance engine |
 
 ### Retrofit (per the build-order instruction)

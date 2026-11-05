@@ -46,6 +46,46 @@ class MaintenanceRequest(models.Model):
                                     'and rolled into its Total Maintenance Cost when this ticket '
                                     'is verified - leave at 0 if there was no cost or none was tracked.')
 
+    guest_phone = fields.Char(
+        compute='_compute_guest_phone', string='Guest Phone',
+        help='The reporting guest\'s phone number, so the officer can call back without opening '
+             'the service request or the contact record. Blank for tickets not raised by a guest.')
+
+    requires_external_team = fields.Boolean(
+        string='Needs External Team', tracking=True,
+        help='Ticked when this job is beyond the in-house team and needs an outside '
+             'contractor/specialist - e.g. a licensed electrician, a lift technician.')
+    external_contractor_name = fields.Char(string='Contractor/Company')
+    external_contractor_phone = fields.Char(string='Contractor Phone')
+    external_request_notes = fields.Text(
+        string='External Team Notes', help='What the external team needs to know or bring, '
+                                             'and any quote/scheduling details.')
+    external_requested_by_id = fields.Many2one('res.users', string='Requested By', readonly=True, copy=False)
+    external_requested_date = fields.Datetime(string='Requested On', readonly=True, copy=False)
+
+    @api.depends('service_request_id.partner_phone')
+    def _compute_guest_phone(self):
+        for rec in self:
+            rec.guest_phone = rec.service_request_id.partner_phone
+
+    def action_request_external_team(self):
+        """Maintenance staff flag that a ticket is beyond the in-house team -
+        logged on the ticket (contractor/notes) and chatter-noted immediately;
+        next_sms (if installed) also alerts the maintenance supervisor(s), the
+        same pattern as the 'New ticket logged' trigger in trigger_maintenance.py."""
+        self.write({
+            'requires_external_team': True,
+            'external_requested_by_id': self.env.user.id,
+            'external_requested_date': fields.Datetime.now(),
+        })
+        for rec in self:
+            rec.message_post(body=(
+                'External team requested%s%s' % (
+                    ' - %s' % rec.external_contractor_name if rec.external_contractor_name else '',
+                    ' (%s)' % rec.external_contractor_phone if rec.external_contractor_phone else '',
+                )))
+            # next_sms: 'External team requested' trigger fires to maintenance supervisors here.
+
     @api.model_create_multi
     def create(self, vals_list):
         records = super().create(vals_list)

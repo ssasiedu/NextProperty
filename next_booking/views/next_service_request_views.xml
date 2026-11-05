@@ -7,7 +7,9 @@
         <field name="arch" type="xml">
             <list decoration-success="status=='resolved'" decoration-info="status=='submitted'">
                 <field name="name"/>
-                <field name="partner_id"/>
+                <field name="room_id"/>
+                <field name="partner_id" string="Guest"/>
+                <field name="partner_phone" optional="show" string="Phone" widget="phone"/>
                 <field name="request_type"/>
                 <field name="status"/>
             </list>
@@ -28,8 +30,10 @@
                 <sheet>
                     <div class="oe_title"><h1><field name="name"/></h1></div>
                     <group>
+                        <field name="room_id"/>
                         <field name="reservation_id"/>
-                        <field name="partner_id"/>
+                        <field name="partner_id" string="Guest"/>
+                        <field name="partner_phone" string="Guest Phone" widget="phone"/>
                         <field name="request_type"/>
                     </group>
                     <field name="description"/>

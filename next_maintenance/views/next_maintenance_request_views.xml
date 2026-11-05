@@ -11,15 +11,28 @@
                     <field name="next_room_id"/>
                     <field name="next_property_id"/>
                     <field name="raised_by_type"/>
+                    <field name="guest_phone" invisible="not guest_phone" widget="phone"/>
                     <field name="assigned_officer_id"/>
                     <field name="auto_block_room"/>
                     <field name="actual_cost"/>
                     <field name="service_request_id" readonly="1"/>
                 </group>
+                <group string="External Team" name="next_external_team">
+                    <field name="requires_external_team"/>
+                    <field name="external_contractor_name" invisible="not requires_external_team"/>
+                    <field name="external_contractor_phone" invisible="not requires_external_team" widget="phone"/>
+                    <field name="external_requested_by_id" readonly="1" invisible="not requires_external_team"/>
+                    <field name="external_requested_date" readonly="1" invisible="not requires_external_team"/>
+                    <field name="external_request_notes" invisible="not requires_external_team" colspan="2"/>
+                </group>
             </xpath>
             <xpath expr="//field[@name='stage_id']" position="after">
                 <field name="next_state" widget="statusbar"
                        statusbar_visible="new,assigned,in_progress,resolved,verified"/>
+            </xpath>
+            <xpath expr="//header" position="inside">
+                <button name="action_request_external_team" string="Request External Team" type="object"
+                        invisible="requires_external_team"/>
             </xpath>
         </field>
     </record>
@@ -31,7 +44,9 @@
         <field name="arch" type="xml">
             <xpath expr="//list" position="inside">
                 <field name="next_room_id"/>
+                <field name="guest_phone" optional="hide"/>
                 <field name="next_state"/>
+                <field name="requires_external_team" optional="show"/>
             </xpath>
         </field>
     </record>

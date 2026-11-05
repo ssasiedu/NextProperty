@@ -1,6 +1,6 @@
 {
     'name': 'NEXT Property Management - SMS (Hubtel)',
-    'version': '19.0.1.2.0',
+    'version': '19.0.1.3.0',
     'category': 'Industries/Hospitality',
     'summary': 'Provider-abstracted async SMS dispatch (Hubtel) wired across the NEXT suite',
     'description': """

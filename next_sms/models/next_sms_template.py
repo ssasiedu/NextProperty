@@ -20,6 +20,7 @@ TRIGGER_CODES = [
     ('housekeeping_task_overdue', 'Housekeeping: Task Overdue'),
     ('maintenance_new_ticket', 'Maintenance: New Ticket Logged'),
     ('maintenance_status_update', 'Maintenance: Status Update'),
+    ('maintenance_external_team_requested', 'Maintenance: External Team Requested'),
     ('equipment_maintenance_due_soon', 'Maintenance: Equipment Preventive Maintenance Due Soon'),
     ('equipment_maintenance_overdue', 'Maintenance: Equipment Preventive Maintenance Overdue'),
     ('equipment_maintenance_completed', 'Maintenance: Equipment Preventive Maintenance Completed'),
