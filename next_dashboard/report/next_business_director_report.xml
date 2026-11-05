@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_next_business_director" model="ir.actions.report">
+        <field name="name">Business Director's Report</field>
+        <field name="model">next.business.dashboard.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">next_dashboard.report_next_business_director</field>
+        <field name="report_file">next_dashboard.report_next_business_director</field>
+        <field name="print_report_name">'Business Director Report - %s' % (time.strftime('%Y-%m-%d'))</field>
+    </record>
+</odoo>

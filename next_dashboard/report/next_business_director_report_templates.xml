@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<!-- A whole-business snapshot, not a per-record report - the action always
+     hands this a single wizard record carrying the chosen period; `docs[0]`
+     is only used to reach ._get_business_snapshot(), the same aggregator
+     the in-app Html preview (action_compute) uses, so the screen and the
+     PDF can never show different numbers. -->
+<template id="report_next_business_director">
+    <t t-call="web.html_container">
+        <t t-if="docs">
+            <t t-set="snap" t-value="docs[0]._get_business_snapshot()"/>
+            <t t-set="kpis" t-value="snap['kpis']"/>
+            <t t-set="maint" t-value="snap['maintenance']"/>
+            <t t-set="billing" t-value="snap['billing']"/>
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <h2 style="margin-bottom:2px;">Business Director's Report</h2>
+                    <p class="text-muted">
+                        Period: <span t-esc="snap['date_from']"/> to <span t-esc="snap['date_to']"/>
+                        &#8212; generated <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%Y-%m-%d %H:%M')"/>.
+                        Property/room profitability and owner-billing collection are for calendar month
+                        <span t-esc="snap['period_month']"/>/<span t-esc="snap['period_year']"/>.
+                    </p>
+
+                    <div class="row text-center mb-4">
+                        <div class="col-2">
+                            <div style="font-size:20px;font-weight:700;"><span t-esc="kpis['occupancy_rate']"/>%</div>
+                            <div class="text-muted small">Occupancy Rate</div>
+                        </div>
+                        <div class="col-2">
+                            <div style="font-size:20px;font-weight:700;"><span t-esc="kpis['gross_revenue']" t-options="{'widget': 'float', 'precision': 2}"/></div>
+                            <div class="text-muted small">Gross Revenue</div>
+                        </div>
+                        <div class="col-2">
+                            <div style="font-size:20px;font-weight:700;"><span t-esc="kpis['adr']" t-options="{'widget': 'float', 'precision': 2}"/></div>
+                            <div class="text-muted small">ADR</div>
+                        </div>
+                        <div class="col-2">
+                            <div style="font-size:20px;font-weight:700;"><span t-esc="kpis['revpar']" t-options="{'widget': 'float', 'precision': 2}"/></div>
+                            <div class="text-muted small">RevPAR</div>
+                        </div>
+                        <div class="col-2">
+                            <div t-attf-style="font-size:20px;font-weight:700;color:#{'#027A48' if snap['total_net_income'] >= 0 else '#B42318'};">
+                                <span t-esc="snap['total_net_income']" t-options="{'widget': 'float', 'precision': 2}"/>
+                            </div>
+                            <div class="text-muted small">Net Income (Properties)</div>
+                        </div>
+                        <div class="col-2">
+                            <div style="font-size:20px;font-weight:700;"><span t-esc="snap['fnb_revenue']" t-options="{'widget': 'float', 'precision': 2}"/></div>
+                            <div class="text-muted small">F&amp;B / QR Revenue</div>
+                        </div>
+                    </div>
+
+                    <div class="row text-center mb-4">
+                        <div class="col-2">
+                            <div t-attf-style="font-size:20px;font-weight:700;color:#{'#B42318' if maint['overdue'] else '#027A48'};">
+                                <t t-esc="len(maint['overdue'])"/>
+                            </div>
+                            <div class="text-muted small">Equipment Overdue</div>
+                        </div>
+                        <div class="col-2">
+                            <div style="font-size:20px;font-weight:700;"><t t-esc="len(maint['open_tickets'])"/></div>
+                            <div class="text-muted small">Open Maintenance Tickets</div>
+                        </div>
+                        <div class="col-2">
+                            <div t-attf-style="font-size:20px;font-weight:700;color:#{'#B42318' if billing['defaulters'] else '#027A48'};">
+                                <t t-esc="len(billing['defaulters'])"/>
+                            </div>
+                            <div class="text-muted small">Owner Billing Defaulters</div>
+                        </div>
+                        <div class="col-2">
+                            <div style="font-size:20px;font-weight:700;"><span t-esc="billing['defaulter_balance']" t-options="{'widget': 'float', 'precision': 2}"/></div>
+                            <div class="text-muted small">Defaulter Balance Outstanding</div>
+                        </div>
+                        <div class="col-2">
+                            <div style="font-size:20px;font-weight:700;"><span t-esc="billing['total_collected']" t-options="{'widget': 'float', 'precision': 2}"/></div>
+                            <div class="text-muted small">Owner Billing Collected</div>
+                        </div>
+                        <div class="col-2">
+                            <div style="font-size:20px;font-weight:700;"><t t-esc="len(billing['pending_reports'])"/></div>
+                            <div class="text-muted small">Payments Awaiting Confirmation</div>
+                        </div>
+                    </div>
+
+                    <h4 style="margin-bottom:4px;">Property Profitability (ranked)</h4>
+                    <table class="table table-sm mb-4">
+                        <thead><tr><th>Property</th><th class="text-end">Revenue</th>
+                            <th class="text-end">Expenses</th><th class="text-end">Net Income</th></tr></thead>
+                        <tbody>
+                            <tr t-if="not snap['profitability']"><td colspan="4" class="text-muted">No properties.</td></tr>
+                            <tr t-foreach="snap['profitability']" t-as="b">
+                                <td><t t-esc="b['property'].name"/></td>
+                                <td class="text-end"><span t-esc="b['revenue']" t-options="{'widget': 'float', 'precision': 2}"/></td>
+                                <td class="text-end"><span t-esc="b['expenses']" t-options="{'widget': 'float', 'precision': 2}"/></td>
+                                <td class="text-end" t-attf-style="font-weight:600;color:#{'#027A48' if b['net_income'] >= 0 else '#B42318'};">
+                                    <span t-esc="b['net_income']" t-options="{'widget': 'float', 'precision': 2}"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4 style="margin-bottom:4px;">Current Owner Billing Defaulters</h4>
+                    <table class="table table-sm mb-4">
+                        <thead><tr><th>Owner</th><th>Property</th><th>Bill</th><th>Due Date</th>
+                            <th class="text-end">Balance</th><th class="text-end">Reminders Sent</th></tr></thead>
+                        <tbody>
+                            <tr t-if="not billing['defaulters']"><td colspan="6" class="text-muted">No current defaulters.</td></tr>
+                            <tr t-foreach="billing['defaulters']" t-as="bill">
+                                <td><t t-esc="bill.owner_id.name"/></td>
+                                <td><t t-esc="bill.property_id.name"/></td>
+                                <td><t t-esc="bill.name"/></td>
+                                <td><t t-esc="bill.due_date"/></td>
+                                <td class="text-end"><span t-esc="bill.balance" t-options="{'widget': 'float', 'precision': 2}"/></td>
+                                <td class="text-end"><t t-esc="bill.reminder_count"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4 style="margin-bottom:4px;">Housekeeping Backlog (live)</h4>
+                    <table class="table table-sm mb-4" style="width:300px;">
+                        <tbody>
+                            <tr t-foreach="snap['housekeeping'].items()" t-as="hk">
+                                <td><t t-esc="hk[0]"/></td>
+                                <td class="text-end"><t t-esc="hk[1]"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <p class="text-muted mt-2">
+                        Every figure above is read from its own module's existing calculation
+                        (occupancy/ADR/RevPAR from the Hotel BI Dashboard, profitability from the
+                        Property Profitability Report, maintenance figures from the Maintenance
+                        Director's Report, billing figures from Owner Billing) - this report is a
+                        rollup across the whole business, not a second source of truth for any of them.
+                    </p>
+                </div>
+            </t>
+        </t>
+    </t>
+</template>
+</odoo>
