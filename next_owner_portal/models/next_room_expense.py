@@ -86,3 +86,28 @@ class NextRoomNetIncome(models.Model):
                          'computed net income (%.2f) for %s/%s.' % (
                              published.amount, internal['net_income'], period_month, period_year))
         return self.env.ref('next_owner_portal.action_report_next_owner_settlement').report_action(self)
+
+
+class NextPropertyProfitability(models.Model):
+    """Team review item #9: property-level profitability rolled up from
+    every room's compute_internal_net_income() above - internal/management
+    only, feeding the Property Profitability Report
+    (wizard/next_profitability_report_wizard.py)."""
+    _inherit = 'next.property'
+
+    def _get_profitability_breakdown(self, period_month, period_year):
+        self.ensure_one()
+        room_rows = []
+        revenue = expenses = 0.0
+        for room in self.room_ids:
+            result = room.compute_internal_net_income(period_month, period_year)
+            room_rows.append({
+                'room': room, 'revenue': result['room_revenue'],
+                'expenses': result['allocated_expenses'], 'net_income': result['net_income'],
+            })
+            revenue += result['room_revenue']
+            expenses += result['allocated_expenses']
+        return {
+            'property': self, 'revenue': revenue, 'expenses': expenses,
+            'net_income': revenue - expenses, 'rooms': room_rows,
+        }

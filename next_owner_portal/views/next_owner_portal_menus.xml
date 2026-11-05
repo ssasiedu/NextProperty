@@ -14,4 +14,8 @@
               action="action_next_room_expense" sequence="30"/>
     <menuitem id="menu_next_property_viewing" name="Property Viewings" parent="menu_next_owner_portal_root"
               action="action_next_property_viewing" sequence="40"/>
+    <menuitem id="menu_next_profitability_report" name="Property Profitability Report" parent="menu_next_owner_portal_root"
+              action="action_next_profitability_report_wizard" sequence="50"/>
+    <menuitem id="menu_next_occupancy_report" name="Occupancy Rate Report" parent="menu_next_owner_portal_root"
+              action="action_next_occupancy_report_wizard" sequence="60"/>
 </odoo>
