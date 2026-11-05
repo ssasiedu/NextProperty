@@ -34,10 +34,13 @@ class NextServiceRequest(models.Model):
         for rec in self:
             rec.room_id = rec.reservation_id.room_ids[:1]
 
-    @api.depends('partner_id.phone', 'partner_id.mobile')
+    @api.depends('partner_id.phone')
     def _compute_partner_phone(self):
+        # res.partner has no separate 'mobile' field in Odoo 19 (merged into
+        # 'phone') - verified against the actual res.partner model source,
+        # not assumed from an older version's schema.
         for rec in self:
-            rec.partner_phone = rec.partner_id.phone or rec.partner_id.mobile
+            rec.partner_phone = rec.partner_id.phone
 
     request_type = fields.Selection([
         ('fault', 'Fault Report'),
