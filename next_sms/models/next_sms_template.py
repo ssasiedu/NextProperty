@@ -14,6 +14,7 @@ TRIGGER_CODES = [
     ('checkin_complete', 'Front Desk: Check-in Complete'),
     ('checkout_complete', 'Front Desk: Checkout Complete + Final Folio'),
     ('checkout_discrepancy', 'Front Desk: Inventory Discrepancy at Checkout'),
+    ('checkout_feedback_survey', 'Front Desk: Guest Feedback Survey Invite'),
     ('qr_order_received', 'POS/QR: Order Received/Confirmed'),
     ('qr_order_ready', 'POS/QR: Order Ready / Service Complete'),
     ('housekeeping_room_ready', 'Housekeeping: Room Flipped to Green/Ready'),

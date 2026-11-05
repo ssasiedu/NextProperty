@@ -51,6 +51,13 @@
             <field name="email_subject">Inventory discrepancy at checkout - room {room_number}</field>
             <field name="email_body"><![CDATA[<p>Inventory discrepancy at checkout for room {room_number} ({guest_name}): <strong>{amount}</strong> charged.</p>]]></field>
         </record>
+        <record id="tmpl_checkout_feedback_survey" model="next.sms.template">
+            <field name="name">Guest Feedback Survey Invite</field>
+            <field name="trigger_code">checkout_feedback_survey</field>
+            <field name="body">Thanks for staying with us, {guest_name}! Tell us how it went: {feedback_url}</field>
+            <field name="email_subject">How was your stay?</field>
+            <field name="email_body"><![CDATA[<p>Thanks for staying with us, {guest_name}! <a href="{feedback_url}">Tell us how it went</a>.</p>]]></field>
+        </record>
         <record id="tmpl_qr_order_received" model="next.sms.template">
             <field name="name">Order Received</field>
             <field name="trigger_code">qr_order_received</field>

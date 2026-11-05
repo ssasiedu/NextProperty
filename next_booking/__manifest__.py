@@ -1,6 +1,6 @@
 {
     'name': 'NEXT Property Management - Booking Website & Guest Portal',
-    'version': '19.0.1.7.0',
+    'version': '19.0.1.8.0',
     'category': 'Industries/Hospitality',
     'summary': 'Website booking flow, availability engine and guest portal',
     'description': """
@@ -16,10 +16,11 @@ NEXT Property Management - Booking
 """,
     'author': 'NEXT Property Management',
     'license': 'LGPL-3',
-    'depends': ['next_base', 'website', 'portal', 'payment', 'maintenance'],
+    'depends': ['next_base', 'website', 'portal', 'payment', 'maintenance', 'survey'],
     'data': [
         'security/ir.model.access.csv',
         'security/next_booking_security.xml',
+        'data/next_guest_survey_data.xml',
         'views/next_service_request_views.xml',
         'views/next_booking_menus.xml',
         'views/website_booking_templates.xml',
