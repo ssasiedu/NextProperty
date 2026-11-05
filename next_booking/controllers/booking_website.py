@@ -95,11 +95,17 @@ class NextBookingWebsite(http.Controller):
         of keys the template expects - is_public decides whether the
         guest-details fields show at all (a logged-in portal/internal user
         already has a real partner_id, nothing to collect)."""
+        price = room_type.price_for_stay(df, dt, int(adults), int(children))
+        deposit_pct = request.env['next.property'].sudo().browse(int(property_id)).online_deposit_percentage
         return {
             'room_type': room_type, 'free_rooms': free_rooms,
             'property_id': property_id, 'date_from': date_from, 'date_to': date_to,
             'adults': adults, 'children': children, 'rooms': rooms,
-            'price': room_type.price_for_stay(df, dt, int(adults), int(children)),
+            'price': price,
+            # So the guest sees, before paying, that this is a deposit and the
+            # rest is settled at the property - not a surprise partial charge.
+            'deposit_pct': deposit_pct,
+            'deposit_amount': round(price * deposit_pct / 100.0, 2) if deposit_pct else 0.0,
             'is_public': request.env.user._is_public(),
             'error': error, 'guest_name': guest_name, 'guest_email': guest_email, 'guest_phone': guest_phone,
         }
@@ -165,6 +171,19 @@ class NextBookingWebsite(http.Controller):
             reservation.folio_id.add_line(
                 'Room charge (%s nights)' % reservation.nights, price, line_type='room_charge')
 
+        # Team review item #1: a property can require only a percentage of
+        # the total upfront, through the website, to confirm the booking -
+        # the rest is settled at the property. Reuses the same
+        # deposit_required/deposit_amount fields and action_record_deposit_payment()
+        # front desk already uses for a manual deposit (next_base/next_reservation.py);
+        # payment_transaction.py's _post_process() already checks
+        # deposit_required first, so recording this percentage here is the
+        # only change needed to make an online deposit flow through it.
+        deposit_pct = reservation.property_id.online_deposit_percentage
+        if price and deposit_pct > 0:
+            deposit_amount = round(price * deposit_pct / 100.0, 2)
+            reservation.write({'deposit_required': True, 'deposit_amount': deposit_amount})
+
         # Hand off into Odoo's own generic payment flow (already a next_booking
         # dependency) rather than /my/bookings - that route is auth='user', so
         # a public/anonymous guest (every website booking, unless they happened
@@ -175,12 +194,16 @@ class NextBookingWebsite(http.Controller):
         # (_post_process override) confirms the reservation and records the
         # payment once the transaction actually completes.
         amount_due = reservation.folio_id.amount_due if reservation.folio_id else 0.0
-        if amount_due > 0:
+        # Only the deposit is collected online when one is required - the
+        # balance stays on the folio for front desk to collect at checkout,
+        # exactly like a manually-recorded deposit already works today.
+        pay_amount = reservation.deposit_amount if reservation.deposit_required else amount_due
+        if pay_amount > 0:
             access_token = payment_utils.generate_access_token(
-                partner.id, amount_due, reservation.currency_id.id)
+                partner.id, pay_amount, reservation.currency_id.id)
             pay_params = {
                 'reference': reservation.name,
-                'amount': amount_due,
+                'amount': pay_amount,
                 'currency_id': reservation.currency_id.id,
                 'partner_id': partner.id,
                 'access_token': access_token,

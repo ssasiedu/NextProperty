@@ -44,6 +44,12 @@ class NextProperty(models.Model):
         help='True when this is the only active property - used by the booking '
              'website to skip the "select a property" step.')
 
+    online_deposit_percentage = fields.Float(
+        string='Online Booking Deposit %', default=0.0,
+        help='Percentage of the stay total a guest must pay upfront, through the '
+             'website, to confirm an online booking - the balance is settled at '
+             'the property. 0 means the website charges the full amount, as before.')
+
     @api.model
     def _tz_get(self):
         return [(tz, tz) for tz in sorted(__import__('pytz').all_timezones)]
@@ -60,4 +66,8 @@ class NextProperty(models.Model):
     _code_company_uniq = models.Constraint(
         'unique(code, company_id)',
         'Property code must be unique per company.',
+    )
+    _online_deposit_percentage_range = models.Constraint(
+        'check(online_deposit_percentage >= 0 and online_deposit_percentage <= 100)',
+        'Online Booking Deposit % must be between 0 and 100.',
     )
