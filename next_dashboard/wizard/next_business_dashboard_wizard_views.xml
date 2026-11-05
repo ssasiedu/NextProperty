@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_next_business_dashboard_wizard_form" model="ir.ui.view">
+        <field name="name">next.business.dashboard.wizard.form</field>
+        <field name="model">next.business.dashboard.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Executive 360 Dashboard">
+                <group>
+                    <field name="period_type"/>
+                    <field name="anchor_date"/>
+                </group>
+                <field name="result_html"/>
+                <footer>
+                    <button name="action_compute" string="Refresh" type="object" class="btn-primary"/>
+                    <button name="action_print_director_report" string="Print Director's Report"
+                            type="object" class="btn-secondary"/>
+                    <button string="Close" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_next_business_dashboard_wizard" model="ir.actions.act_window">
+        <field name="name">Executive 360 Dashboard</field>
+        <field name="res_model">next.business.dashboard.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_next_business_dashboard" name="Executive Dashboard"
+              parent="next_base.menu_next_root" action="action_next_business_dashboard_wizard"
+              sequence="1" groups="next_base.group_next_manager,next_base.group_next_accountant"/>
+</odoo>

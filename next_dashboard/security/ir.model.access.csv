@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_next_business_dashboard_wizard_manager,next.business.dashboard.wizard.manager,model_next_business_dashboard_wizard,next_base.group_next_manager,1,1,1,1
+access_next_business_dashboard_wizard_accountant,next.business.dashboard.wizard.accountant,model_next_business_dashboard_wizard,next_base.group_next_accountant,1,1,1,1
