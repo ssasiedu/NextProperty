@@ -141,4 +141,15 @@
         <field name="code">model._send_equipment_report_to_management()</field>
     </record>
 
+    <!-- Team review item #6: an on-demand, printable version of the full
+         maintenance-unit breakdown, from the same Action menu. -->
+    <record id="action_server_print_director_report" model="ir.actions.server">
+        <field name="name">Print Director's Report</field>
+        <field name="model_id" ref="maintenance.model_maintenance_equipment"/>
+        <field name="binding_model_id" ref="maintenance.model_maintenance_equipment"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">action = model.action_print_director_report()</field>
+    </record>
+
 </odoo>
