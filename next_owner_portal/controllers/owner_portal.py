@@ -194,3 +194,36 @@ class NextOwnerPortal(CustomerPortal):
         return request.render('next_owner_portal.owner_portal_viewings', {
             'viewings': viewings, 'properties': partner.owned_property_ids,
         })
+
+    @http.route(['/my/owner/tickets', '/my/owner/tickets/new'], type='http', auth='user',
+                website=True, methods=['GET', 'POST'])
+    def owner_tickets(self, **post):
+        """Team review item #4: lets an owner report a fault seen at their
+        property directly, instead of only hearing about it from a guest or
+        staff. Files a plain maintenance.request (raised_by_type='owner'),
+        the same ticket model/queue staff already work from - not a second,
+        parallel "owner issue" model - scoped to a room this owner actually
+        owns, the same trust boundary owner_viewings above uses."""
+        partner = self._owner_or_redirect()
+        if not partner:
+            return request.redirect('/my')
+        if request.httprequest.method == 'POST':
+            room_id = int(post.get('room_id') or 0)
+            # sudo() below bypasses maintenance.request's own ir.rule, so
+            # this check is the only thing stopping a report against a room
+            # this owner doesn't actually own from ever reaching create().
+            if room_id not in partner.owned_room_ids.ids:
+                return request.redirect('/my/owner/tickets')
+            request.env['maintenance.request'].sudo().create({
+                'name': post.get('name'),
+                'description': post.get('description'),
+                'next_room_id': room_id,
+                'raised_by_type': 'owner',
+                'reported_by_owner_id': partner.id,
+            })
+            return request.redirect('/my/owner/tickets')
+        tickets = request.env['maintenance.request'].sudo().search([
+            ('next_room_id', 'in', partner.owned_room_ids.ids)], order='create_date desc')
+        return request.render('next_owner_portal.owner_portal_tickets', {
+            'tickets': tickets, 'rooms': partner.owned_room_ids,
+        })

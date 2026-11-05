@@ -11,6 +11,7 @@
                     <field name="next_room_id"/>
                     <field name="next_property_id"/>
                     <field name="raised_by_type"/>
+                    <field name="reported_by_owner_id" invisible="raised_by_type != 'owner'" readonly="1"/>
                     <field name="guest_phone" invisible="not guest_phone" widget="phone"/>
                     <field name="assigned_officer_id"/>
                     <field name="auto_block_room"/>

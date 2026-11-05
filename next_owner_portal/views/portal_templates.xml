@@ -78,6 +78,13 @@
                                         </svg>
                                         Viewings
                                     </a>
+                                    <a href="/my/owner/tickets" class="btn next-owner-btn">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M12 9v4M12 17h.01M10.3 3.9 2.6 17.1a1.8 1.8 0 0 0 1.56 2.7h15.68a1.8 1.8 0 0 0 1.56-2.7L13.7 3.9a1.8 1.8 0 0 0-3.4 0Z"
+                                                  stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                                        </svg>
+                                        Report a Fault
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -268,6 +275,49 @@
                 <textarea name="notes" class="form-control"/>
             </div>
             <button type="submit" class="btn btn-primary">Request Viewing</button>
+        </form>
+    </t>
+</template>
+
+<template id="owner_portal_tickets" name="Owner Portal - Maintenance Tickets">
+    <t t-call="portal.portal_layout">
+        <h2>Maintenance Tickets</h2>
+        <p class="text-muted">Every maintenance ticket open or logged against your rooms, including any you report below.</p>
+        <table class="table mb-4">
+            <thead><tr><th>Subject</th><th>Room</th><th>Reported By</th><th>Status</th><th>External Team</th></tr></thead>
+            <tbody>
+                <tr t-if="not tickets"><td colspan="5" class="text-muted">No maintenance tickets yet.</td></tr>
+                <tr t-foreach="tickets" t-as="t_rec">
+                    <td><t t-esc="t_rec.name"/></td>
+                    <td><t t-esc="t_rec.next_room_id.name or '-'"/></td>
+                    <td><t t-esc="dict(t_rec._fields['raised_by_type'].selection).get(t_rec.raised_by_type)"/></td>
+                    <td><t t-esc="dict(t_rec._fields['next_state'].selection).get(t_rec.next_state)"/></td>
+                    <td>
+                        <span t-if="t_rec.requires_external_team" class="badge text-bg-info">Requested</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <h4>Report a Fault</h4>
+        <form action="/my/owner/tickets/new" method="post">
+            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+            <div class="mb-3">
+                <label>Room</label>
+                <select name="room_id" class="form-select" required="required">
+                    <option t-foreach="rooms" t-as="room" t-att-value="room.id">
+                        <t t-esc="room.name"/> (<t t-esc="room.property_id.name"/>)
+                    </option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label>Subject</label>
+                <input type="text" name="name" class="form-control" required="required"/>
+            </div>
+            <div class="mb-3">
+                <label>Description</label>
+                <textarea name="description" class="form-control" placeholder="What did you see, and where exactly?"/>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit Ticket</button>
         </form>
     </t>
 </template>
