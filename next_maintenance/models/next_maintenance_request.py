@@ -15,6 +15,7 @@ class MaintenanceRequest(models.Model):
 
     raised_by_type = fields.Selection([
         ('guest', 'Guest (Portal)'),
+        ('owner', 'Property Owner (Portal)'),
         ('housekeeping', 'Housekeeping'),
         ('front_desk', 'Front Desk'),
         ('staff', 'Other Staff'),
@@ -39,6 +40,11 @@ class MaintenanceRequest(models.Model):
     service_request_id = fields.Many2one('next.service.request', string='Originating Guest Request',
                                           help='Set when this ticket was escalated from a guest '
                                                'service request raised through the portal.')
+
+    reported_by_owner_id = fields.Many2one(
+        'res.partner', string='Reported By Owner', readonly=True, copy=False,
+        help='Set when raised_by_type is "owner" - the owner who filed it from their portal, '
+             'kept even if the room\'s ownership changes later.')
 
     actual_cost = fields.Float(
         string='Actual Cost', help='What this ticket actually cost (parts/labour/callout fee). '

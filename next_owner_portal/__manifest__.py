@@ -1,6 +1,6 @@
 {
     'name': 'NEXT Property Management - Owner Portal',
-    'version': '19.0.1.2.0',
+    'version': '19.0.1.3.0',
     'category': 'Industries/Hospitality',
     'summary': 'Owner BI dashboard, manual net revenue, expenses, settlement statements, property viewings',
     'description': """
@@ -19,7 +19,7 @@ NEXT Property Management - Owner Portal
 """,
     'author': 'NEXT Property Management',
     'license': 'LGPL-3',
-    'depends': ['next_base', 'next_sms', 'calendar', 'portal'],
+    'depends': ['next_base', 'next_sms', 'next_maintenance', 'calendar', 'portal'],
     'data': [
         'security/next_owner_portal_security.xml',
         'security/ir.model.access.csv',
