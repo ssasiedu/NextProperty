@@ -5,18 +5,23 @@
         <field name="name">next.business.dashboard.wizard.form</field>
         <field name="model">next.business.dashboard.wizard</field>
         <field name="arch" type="xml">
+            <!-- target="current" on the action below - this lives as a normal
+                 page/tab in the app, not a blocking popup, so opening the
+                 Executive Dashboard menu item never gets in the way of using
+                 the rest of NEXT Property Mgmt. -->
             <form string="Executive 360 Dashboard">
-                <group>
-                    <field name="period_type"/>
-                    <field name="anchor_date"/>
-                </group>
-                <field name="result_html"/>
-                <footer>
+                <header>
                     <button name="action_compute" string="Refresh" type="object" class="btn-primary"/>
                     <button name="action_print_director_report" string="Print Director's Report"
                             type="object" class="btn-secondary"/>
-                    <button string="Close" class="btn-secondary" special="cancel"/>
-                </footer>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="period_type"/>
+                        <field name="anchor_date"/>
+                    </group>
+                    <field name="result_html"/>
+                </sheet>
             </form>
         </field>
     </record>
@@ -25,7 +30,7 @@
         <field name="name">Executive 360 Dashboard</field>
         <field name="res_model">next.business.dashboard.wizard</field>
         <field name="view_mode">form</field>
-        <field name="target">new</field>
+        <field name="target">current</field>
     </record>
 
 </odoo>
