@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<template id="report_next_owner_bill_statement">
+    <t t-call="web.html_container">
+        <t t-foreach="docs" t-as="owner">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <h2>Service Charge Statement</h2>
+                    <p>Owner: <span t-field="owner.name"/></p>
+                    <p>Balance Due: <strong><span t-esc="'%.2f' % owner.owner_billing_balance"/></strong></p>
+
+                    <h4>Bills</h4>
+                    <table class="table table-sm mb-4">
+                        <thead><tr>
+                            <th>Bill</th><th>Property</th><th>Period</th><th>Due</th>
+                            <th class="text-end">Amount</th><th class="text-end">Paid</th>
+                            <th class="text-end">Balance</th><th>Status</th>
+                        </tr></thead>
+                        <tbody>
+                            <t t-foreach="owner.owner_bill_ids.filtered(lambda b: b.state == 'issued')" t-as="bill">
+                                <tr>
+                                    <td><t t-esc="bill.name"/></td>
+                                    <td><t t-esc="bill.property_id.name"/></td>
+                                    <td><t t-esc="bill.period_month"/>/<t t-esc="bill.period_year"/></td>
+                                    <td><t t-esc="bill.due_date"/></td>
+                                    <td class="text-end"><span t-field="bill.amount"/></td>
+                                    <td class="text-end"><span t-field="bill.amount_paid"/></td>
+                                    <td class="text-end"><span t-field="bill.balance"/></td>
+                                    <td><t t-esc="dict(bill._fields['payment_state'].selection).get(bill.payment_state)"/></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+
+                    <h4>Payments</h4>
+                    <table class="table table-sm">
+                        <thead><tr><th>Date</th><th>Bill</th><th class="text-end">Amount</th><th>Reference</th><th>Status</th></tr></thead>
+                        <tbody>
+                            <t t-foreach="owner.owner_bill_ids.mapped('payment_ids').sorted(key=lambda p: p.payment_date, reverse=True)" t-as="payment">
+                                <tr>
+                                    <td><t t-esc="payment.payment_date"/></td>
+                                    <td><t t-esc="payment.bill_id.name"/></td>
+                                    <td class="text-end"><span t-field="payment.amount"/></td>
+                                    <td><t t-esc="payment.reference or '-'"/></td>
+                                    <td><t t-esc="dict(payment._fields['state'].selection).get(payment.state)"/></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </t>
+</template>
+</odoo>

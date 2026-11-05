@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_next_owner_service_charge_manager,next.owner.service.charge.manager,model_next_owner_service_charge,next_base.group_next_manager,1,1,1,1
+access_next_owner_service_charge_accountant,next.owner.service.charge.accountant,model_next_owner_service_charge,next_base.group_next_accountant,1,1,1,0
+access_next_owner_bill_manager,next.owner.bill.manager,model_next_owner_bill,next_base.group_next_manager,1,1,1,1
+access_next_owner_bill_accountant,next.owner.bill.accountant,model_next_owner_bill,next_base.group_next_accountant,1,1,1,0
+access_next_owner_bill_owner,next.owner.bill.owner,model_next_owner_bill,next_base.group_next_property_owner,1,0,0,0
+access_next_owner_bill_payment_manager,next.owner.bill.payment.manager,model_next_owner_bill_payment,next_base.group_next_manager,1,1,1,1
+access_next_owner_bill_payment_accountant,next.owner.bill.payment.accountant,model_next_owner_bill_payment,next_base.group_next_accountant,1,1,1,0
+access_next_owner_bill_payment_owner,next.owner.bill.payment.owner,model_next_owner_bill_payment,next_base.group_next_property_owner,1,0,1,0

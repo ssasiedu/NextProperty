@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_next_owner_billing_dashboard" name="Owner Billing Dashboard" parent="next_owner_portal.menu_next_owner_portal_root"
+              action="action_next_owner_bill_dashboard" sequence="70"/>
+    <menuitem id="menu_next_owner_bill" name="Owner Bills" parent="next_owner_portal.menu_next_owner_portal_root"
+              action="action_next_owner_bill" sequence="80"/>
+    <menuitem id="menu_next_owner_service_charge" name="Service Charges" parent="next_owner_portal.menu_next_owner_portal_root"
+              action="action_next_owner_service_charge" sequence="90"/>
+</odoo>
