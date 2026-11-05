@@ -93,6 +93,13 @@
             <field name="email_subject">Maintenance update - room {room_number}</field>
             <field name="email_body"><![CDATA[<p>Maintenance update for room {room_number}: status is now <strong>{status}</strong>.</p>]]></field>
         </record>
+        <record id="tmpl_maintenance_external_team_requested" model="next.sms.template">
+            <field name="name">External Team Requested</field>
+            <field name="trigger_code">maintenance_external_team_requested</field>
+            <field name="body">Ticket for room {room_number} needs an external team: {contractor_name}.</field>
+            <field name="email_subject">External team requested - room {room_number}</field>
+            <field name="email_body"><![CDATA[<p>Ticket for room {room_number} has been flagged as needing an external team/contractor: <strong>{contractor_name}</strong>.</p>]]></field>
+        </record>
         <record id="tmpl_equipment_maintenance_due_soon" model="next.sms.template">
             <field name="name">Equipment Preventive Maintenance Due Soon</field>
             <field name="trigger_code">equipment_maintenance_due_soon</field>

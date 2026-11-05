@@ -40,3 +40,16 @@ class MaintenanceRequest(models.Model):
         res = super().action_resolve()
         self._next_notify_status_update()
         return res
+
+    def action_request_external_team(self):
+        res = super().action_request_external_team()
+        Template = self.env['next.sms.template']
+        supervisors = self.env.ref('next_base.group_next_maintenance_supervisor').users
+        for rec in self:
+            for user in supervisors:
+                Template.send_trigger('maintenance_external_team_requested', user.partner_id,
+                                       property_id=rec.next_property_id.id,
+                                       placeholders={'room_number': rec.next_room_id.name,
+                                                     'contractor_name': rec.external_contractor_name or 'TBD'},
+                                       related_record=rec)
+        return res
