@@ -217,6 +217,53 @@ class MaintenanceEquipment(models.Model):
                 'auto_delete': False,
             })
 
+    # --- Team review item #6: a standard, on-demand director's report
+    # covering the whole maintenance unit (not just equipment due dates
+    # like the email above) - equipment status, the open ticket backlog,
+    # jobs escalated to an external team, and a cost breakdown - everything
+    # a director needs in one document to decide where attention/budget
+    # should go. Printed as a PDF via action_print_director_report below;
+    # kept as a plain data method so a future dashboard view (item #12's
+    # 360 report) can reuse the same numbers without re-deriving them. ---
+    @api.model
+    def _get_director_report_data(self):
+        equipments = self.search([('active', '=', True), ('next_property_id', '!=', False)])
+        overdue = equipments.filtered('preventive_overdue')
+        due_soon = equipments.filtered(
+            lambda e: e.next_maintenance_date and e not in overdue
+            and e.days_until_due is not False and 0 <= e.days_until_due <= 14)
+
+        tickets = self.env['maintenance.request'].search([('next_room_id', '!=', False)])
+        open_tickets = tickets.filtered(lambda t: t.next_state != 'verified')
+        backlog_by_state = {}
+        for state, label in open_tickets._fields['next_state'].selection:
+            backlog_by_state[label] = len(open_tickets.filtered(lambda t: t.next_state == state))
+        external_pending = open_tickets.filtered('requires_external_team')
+
+        cost_lines = self.env['next.equipment.cost.line'].search([])
+        cost_by_type = {}
+        for ctype, label in cost_lines._fields['cost_type'].selection:
+            cost_by_type[label] = sum(cost_lines.filtered(lambda c: c.cost_type == ctype).mapped('amount'))
+
+        return {
+            'equipments': equipments.sorted(key=lambda e: e.next_maintenance_date or fields.Date.today()),
+            'overdue': overdue,
+            'due_soon': due_soon,
+            'total_cost': sum(equipments.mapped('total_maintenance_cost')),
+            'open_tickets': open_tickets.sorted(key=lambda t: t.create_date),
+            'backlog_by_state': backlog_by_state,
+            'external_pending': external_pending,
+            'cost_by_type': cost_by_type,
+        }
+
+    def action_print_director_report(self):
+        """Bound to the Equipment list's Action menu - always reports on
+        every piece of NEXT-scoped equipment and every open ticket, not
+        just whatever happened to be selected, since a director wants the
+        whole picture, not a filtered slice."""
+        equipments = self.search([('active', '=', True), ('next_property_id', '!=', False)])
+        return self.env.ref('next_maintenance.action_report_next_maintenance_director').report_action(equipments)
+
     def _render_equipment_report_html(self, equipments, overdue, due_soon, total_cost):
         currency_symbol = self.env.company.currency_id.symbol or ''
         rows = []

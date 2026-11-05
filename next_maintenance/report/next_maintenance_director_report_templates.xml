@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<!-- A whole-business snapshot, not a per-record report - action_print_director_report
+     (next_maintenance_equipment.py) always hands this every qualifying piece of
+     equipment, so `docs` is only used here to reach .env and build the real
+     data set via _get_director_report_data(). -->
+<template id="report_next_maintenance_director">
+    <t t-call="web.html_container">
+        <t t-if="docs">
+            <t t-set="data" t-value="docs[0]._get_director_report_data()"/>
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <h2 style="margin-bottom:2px;">Maintenance Director's Report</h2>
+                    <p class="text-muted">Generated <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%Y-%m-%d %H:%M')"/></p>
+
+                    <div class="row text-center mb-4">
+                        <div class="col-2">
+                            <div style="font-size:20px;font-weight:700;"><t t-esc="len(data['equipments'])"/></div>
+                            <div class="text-muted small">Equipment Tracked</div>
+                        </div>
+                        <div class="col-2">
+                            <div style="font-size:20px;font-weight:700;color:#B42318;"><t t-esc="len(data['overdue'])"/></div>
+                            <div class="text-muted small">Overdue</div>
+                        </div>
+                        <div class="col-2">
+                            <div style="font-size:20px;font-weight:700;color:#B54708;"><t t-esc="len(data['due_soon'])"/></div>
+                            <div class="text-muted small">Due Soon</div>
+                        </div>
+                        <div class="col-2">
+                            <div style="font-size:20px;font-weight:700;"><t t-esc="len(data['open_tickets'])"/></div>
+                            <div class="text-muted small">Open Tickets</div>
+                        </div>
+                        <div class="col-2">
+                            <div style="font-size:20px;font-weight:700;color:#027A48;"><t t-esc="len(data['external_pending'])"/></div>
+                            <div class="text-muted small">Awaiting External Team</div>
+                        </div>
+                        <div class="col-2">
+                            <div style="font-size:20px;font-weight:700;"><span t-esc="data['total_cost']" t-options="{'widget': 'float', 'precision': 2}"/></div>
+                            <div class="text-muted small">Total Cost to Date</div>
+                        </div>
+                    </div>
+
+                    <h4>Equipment Breakdown</h4>
+                    <table class="table table-sm">
+                        <thead><tr>
+                            <th>Equipment</th><th>Property</th><th>Room</th>
+                            <th>Next Due</th><th>Status</th><th class="text-end">Cost to Date</th>
+                        </tr></thead>
+                        <tbody>
+                            <tr t-foreach="data['equipments']" t-as="eq">
+                                <td><t t-esc="eq.name"/></td>
+                                <td><t t-esc="eq.next_property_id.name or '-'"/></td>
+                                <td><t t-esc="eq.next_room_id.name or 'Property-wide'"/></td>
+                                <td><t t-esc="eq.next_maintenance_date or '-'"/></td>
+                                <td>
+                                    <span t-if="eq in data['overdue']" style="color:#B42318;font-weight:600;">OVERDUE</span>
+                                    <span t-elif="eq in data['due_soon']" style="color:#B54708;font-weight:600;">DUE SOON</span>
+                                    <span t-else="" style="color:#027A48;font-weight:600;">OK</span>
+                                </td>
+                                <td class="text-end"><span t-field="eq.total_maintenance_cost"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4 class="mt-4">Open Ticket Backlog</h4>
+                    <table class="table table-sm" style="width:auto;">
+                        <thead><tr><th>Status</th><th class="text-end">Count</th></tr></thead>
+                        <tbody>
+                            <tr t-foreach="data['backlog_by_state'].items()" t-as="row">
+                                <td><t t-esc="row[0]"/></td>
+                                <td class="text-end"><t t-esc="row[1]"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <table class="table table-sm">
+                        <thead><tr>
+                            <th>Ticket</th><th>Room</th><th>Raised By</th>
+                            <th>Officer</th><th>Status</th><th>External Team</th>
+                        </tr></thead>
+                        <tbody>
+                            <tr t-if="not data['open_tickets']"><td colspan="6" class="text-muted">No open tickets.</td></tr>
+                            <tr t-foreach="data['open_tickets']" t-as="tk">
+                                <td><t t-esc="tk.name"/></td>
+                                <td><t t-esc="tk.next_room_id.name or '-'"/></td>
+                                <td><t t-esc="dict(tk._fields['raised_by_type'].selection).get(tk.raised_by_type)"/></td>
+                                <td><t t-esc="tk.assigned_officer_id.name or '-'"/></td>
+                                <td><t t-esc="dict(tk._fields['next_state'].selection).get(tk.next_state)"/></td>
+                                <td>
+                                    <span t-if="tk.requires_external_team">
+                                        <t t-esc="tk.external_contractor_name or 'Requested'"/>
+                                    </span>
+                                    <span t-else="">-</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4 class="mt-4">Cost Breakdown</h4>
+                    <table class="table table-sm" style="width:auto;">
+                        <thead><tr><th>Cost Type</th><th class="text-end">Amount</th></tr></thead>
+                        <tbody>
+                            <tr t-foreach="data['cost_by_type'].items()" t-as="row">
+                                <td><t t-esc="row[0]"/></td>
+                                <td class="text-end"><span t-esc="row[1]" t-options="{'widget': 'float', 'precision': 2}"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <p class="text-muted mt-4">
+                        Equipment breakdown covers every active, property-scoped piece of equipment.
+                        Open ticket backlog covers every maintenance.request against a NEXT room that
+                        is not yet verified, across every raise source (guest, owner, housekeeping,
+                        front desk, staff).
+                    </p>
+                </div>
+            </t>
+        </t>
+    </t>
+</template>
+</odoo>
