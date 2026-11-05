@@ -81,10 +81,32 @@ class MaintenanceEquipment(models.Model):
         compute='_compute_days_until_due', string='Days Until Due',
         help='Negative once overdue. Blank when there is no schedule set.')
 
+    # --- Team review item #7: an equipment-based profitability view - how
+    # much this piece of equipment has cost to KEEP, measured against what
+    # it cost to BUY (the native `cost` field). Equipment itself earns no
+    # revenue to net against in this domain (unlike a room/property), so
+    # "profitability" here is cost-effectiveness: once upkeep approaches
+    # what replacing the thing outright would cost, repairing it further
+    # stops being the economical choice. ---
+    maintenance_cost_ratio = fields.Float(
+        compute='_compute_maintenance_cost_ratio', store=True, string='Maintenance Cost Ratio',
+        help='total_maintenance_cost as a fraction of this equipment\'s purchase Cost (0.70 = 70%). '
+             'Blank (0) when no purchase cost is recorded - there is nothing to compare against.')
+    replacement_recommended = fields.Boolean(
+        compute='_compute_maintenance_cost_ratio', store=True, string='Replacement Recommended',
+        help='Set once the maintenance cost ratio passes 70% - cumulative upkeep is '
+             'approaching what the equipment cost to buy in the first place.')
+
     @api.depends('cost_line_ids.amount')
     def _compute_total_maintenance_cost(self):
         for eq in self:
             eq.total_maintenance_cost = sum(eq.cost_line_ids.mapped('amount'))
+
+    @api.depends('total_maintenance_cost', 'cost')
+    def _compute_maintenance_cost_ratio(self):
+        for eq in self:
+            eq.maintenance_cost_ratio = (eq.total_maintenance_cost / eq.cost) if eq.cost else 0.0
+            eq.replacement_recommended = eq.cost > 0 and eq.maintenance_cost_ratio >= 0.70
 
     @api.depends('next_maintenance_date')
     def _compute_days_until_due(self):
@@ -254,6 +276,10 @@ class MaintenanceEquipment(models.Model):
             'backlog_by_state': backlog_by_state,
             'external_pending': external_pending,
             'cost_by_type': cost_by_type,
+            # Item #7's profitability flag, folded into the same report so
+            # the director sees replace-vs-repair candidates alongside
+            # everything else rather than in a separate document.
+            'replacement_candidates': equipments.filtered('replacement_recommended'),
         }
 
     def action_print_director_report(self):

@@ -19,4 +19,7 @@
     <menuitem id="menu_next_maintenance_equipment_cost" name="Equipment Cost Log" parent="menu_next_maintenance_root" sequence="30"
               action="action_next_equipment_cost_report"
               groups="next_base.group_next_maintenance_supervisor,next_base.group_next_manager"/>
+    <menuitem id="menu_next_maintenance_equipment_profitability" name="Equipment Profitability" parent="menu_next_maintenance_root" sequence="40"
+              action="action_next_equipment_profitability"
+              groups="next_base.group_next_maintenance_supervisor,next_base.group_next_manager"/>
 </odoo>

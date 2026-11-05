@@ -26,6 +26,8 @@
                     </group>
                     <group string="Cost">
                         <field name="total_maintenance_cost"/>
+                        <field name="maintenance_cost_ratio" widget="percentage"/>
+                        <field name="replacement_recommended" widget="boolean_toggle"/>
                     </group>
                     <field name="cost_line_ids">
                         <list editable="bottom">
@@ -53,6 +55,8 @@
                 <field name="days_until_due" optional="show"/>
                 <field name="preventive_overdue" optional="show" widget="boolean_toggle"/>
                 <field name="total_maintenance_cost" optional="hide"/>
+                <field name="maintenance_cost_ratio" optional="hide" widget="percentage"/>
+                <field name="replacement_recommended" optional="hide" widget="boolean_toggle"/>
             </list>
         </field>
     </record>
@@ -72,6 +76,8 @@
                 <filter string="Due Within 14 Days" name="next_due_soon"
                         domain="[('preventive_overdue', '=', False), ('next_maintenance_date', '!=', False),
                                  ('next_maintenance_date', '&lt;=', (context_today() + relativedelta(days=14)).strftime('%Y-%m-%d'))]"/>
+                <filter string="Replacement Recommended" name="next_replacement_recommended"
+                        domain="[('replacement_recommended', '=', True)]"/>
             </filter>
             <filter name="category" position="after">
                 <filter string="Property" name="next_group_property" domain="[]" context="{'group_by': 'next_property_id'}"/>
@@ -127,6 +133,52 @@
         <field name="name">Equipment Cost Log</field>
         <field name="res_model">next.equipment.cost.line</field>
         <field name="view_mode">pivot,list</field>
+    </record>
+
+    <!-- Team review item #7: equipment-based profitability - maintenance
+         expense weighed against purchase cost, per piece of equipment. -->
+    <record id="view_equipment_profitability_graph" model="ir.ui.view">
+        <field name="name">maintenance.equipment.profitability.graph</field>
+        <field name="model">maintenance.equipment</field>
+        <field name="arch" type="xml">
+            <graph string="Equipment Profitability" type="bar">
+                <field name="name"/>
+                <field name="cost" type="measure"/>
+                <field name="total_maintenance_cost" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_equipment_profitability_list" model="ir.ui.view">
+        <field name="name">maintenance.equipment.profitability.list</field>
+        <field name="model">maintenance.equipment</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="replacement_recommended">
+                <field name="name"/>
+                <field name="next_property_id"/>
+                <field name="next_room_id"/>
+                <field name="cost" string="Purchase Cost"/>
+                <field name="total_maintenance_cost" string="Maintenance Cost to Date"/>
+                <field name="maintenance_cost_ratio" widget="percentage"/>
+                <field name="replacement_recommended"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_next_equipment_profitability" model="ir.actions.act_window">
+        <field name="name">Equipment Profitability</field>
+        <field name="res_model">maintenance.equipment</field>
+        <field name="view_mode">list,graph,pivot</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_equipment_profitability_list')}),
+            (0, 0, {'view_mode': 'graph', 'view_id': ref('view_equipment_profitability_graph')})]"/>
+        <field name="domain">[('next_property_id', '!=', False), ('cost', '>', 0)]</field>
+        <field name="context">{'search_default_next_group_property': 1}</field>
+        <field name="help" type="html">
+            <p>How much each piece of equipment has cost to keep running, against what it
+               cost to buy - a piece shown in red is approaching the point where replacing
+               it outright is more economical than continuing to repair it.</p>
+        </field>
     </record>
 
     <!-- Lets a supervisor trigger the management report on demand from the
