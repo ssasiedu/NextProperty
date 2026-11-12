@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_next_property_manager" model="ir.actions.report">
+        <field name="name">Property Manager's Report</field>
+        <field name="model">next.property.dashboard.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">next_dashboard.report_next_property_manager</field>
+        <field name="report_file">next_dashboard.report_next_property_manager</field>
+        <field name="print_report_name">'Property Manager Report - %s - %s' % (object.property_id.name, time.strftime('%Y-%m-%d'))</field>
+    </record>
+</odoo>

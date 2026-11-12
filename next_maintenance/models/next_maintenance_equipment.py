@@ -248,21 +248,34 @@ class MaintenanceEquipment(models.Model):
     # kept as a plain data method so a future dashboard view (item #12's
     # 360 report) can reuse the same numbers without re-deriving them. ---
     @api.model
-    def _get_director_report_data(self):
-        equipments = self.search([('active', '=', True), ('next_property_id', '!=', False)])
+    def _get_director_report_data(self, property_id=False):
+        equipment_domain = [('active', '=', True), ('next_property_id', '!=', False)]
+        if property_id:
+            equipment_domain.append(('next_property_id', '=', property_id))
+        equipments = self.search(equipment_domain)
         overdue = equipments.filtered('preventive_overdue')
         due_soon = equipments.filtered(
             lambda e: e.next_maintenance_date and e not in overdue
             and e.days_until_due is not False and 0 <= e.days_until_due <= 14)
 
-        tickets = self.env['maintenance.request'].search([('next_room_id', '!=', False)])
+        # next_property_id (not next_room_id) so a ticket against property-
+        # wide equipment (no room of its own) is still counted here - see
+        # next_maintenance_request.py's _compute_next_property_id.
+        ticket_domain = [('next_property_id', '!=', False)]
+        if property_id:
+            ticket_domain.append(('next_property_id', '=', property_id))
+        tickets = self.env['maintenance.request'].search(ticket_domain)
         open_tickets = tickets.filtered(lambda t: t.next_state != 'verified')
         backlog_by_state = {}
         for state, label in open_tickets._fields['next_state'].selection:
             backlog_by_state[label] = len(open_tickets.filtered(lambda t: t.next_state == state))
         external_pending = open_tickets.filtered('requires_external_team')
 
-        cost_lines = self.env['next.equipment.cost.line'].search([])
+        # Scoped to this report's own equipment set (previously unscoped,
+        # i.e. it silently included cost lines for archived/non-NEXT
+        # equipment too - harmless business-wide, but wrong once property_id
+        # narrows everything else above).
+        cost_lines = self.env['next.equipment.cost.line'].search([('equipment_id', 'in', equipments.ids)])
         cost_by_type = {}
         for ctype, label in cost_lines._fields['cost_type'].selection:
             cost_by_type[label] = sum(cost_lines.filtered(lambda c: c.cost_type == ctype).mapped('amount'))
@@ -280,6 +293,59 @@ class MaintenanceEquipment(models.Model):
             # the director sees replace-vs-repair candidates alongside
             # everything else rather than in a separate document.
             'replacement_candidates': equipments.filtered('replacement_recommended'),
+        }
+
+    # --- Period-scoped ticket activity + "cost of it not being done", for
+    # the Executive 360 Dashboard and the per-property Manager Dashboard
+    # (next_dashboard) - item #12's follow-up request: "the dashboard...
+    # should include the maintenance opened, resolved, pending and
+    # completed tickets for the period specified... the upcoming
+    # maintenance and the cost of it not being done should also be part
+    # of the report." Deliberately separate from _get_director_report_data
+    # above (a live, not period-bound, snapshot already used by the
+    # Maintenance Director's Report) rather than folding period logic into
+    # it and risking that report's own behaviour. ---
+    @api.model
+    def _get_maintenance_period_snapshot(self, date_from, date_to, property_id=False):
+        ticket_domain = [('next_property_id', '!=', False)]
+        if property_id:
+            ticket_domain.append(('next_property_id', '=', property_id))
+        tickets = self.env['maintenance.request'].search(ticket_domain)
+
+        opened = tickets.filtered(lambda t: t.request_date and date_from <= t.request_date <= date_to)
+        completed = tickets.filtered(
+            lambda t: t.next_state == 'verified' and t.close_date and date_from <= t.close_date <= date_to)
+        resolved = tickets.filtered(lambda t: t.next_state == 'resolved')
+        pending = tickets.filtered(lambda t: t.next_state not in ('verified',))
+
+        equipment_domain = [('active', '=', True), ('next_property_id', '!=', False)]
+        if property_id:
+            equipment_domain.append(('next_property_id', '=', property_id))
+        equipments = self.search(equipment_domain)
+        overdue = equipments.filtered('preventive_overdue')
+        due_soon = equipments.filtered(
+            lambda e: e.next_maintenance_date and e not in overdue
+            and e.days_until_due is not False and 0 <= e.days_until_due <= 30)
+        upcoming = (overdue + due_soon).sorted(key=lambda e: e.next_maintenance_date or fields.Date.today())
+
+        # "The cost of it not being done" is read straight from what the
+        # system already charges for exactly that: overdue_penalty_amount
+        # is the cost next_cron_check_preventive_maintenance posts once a
+        # piece of equipment goes overdue (see above). Two figures, not one:
+        # what's already been incurred this period (actually posted cost
+        # lines), and what's currently at risk (the penalty that WOULD post
+        # for everything overdue or due soon right now, if nothing changes) -
+        # a director needs both "what did inaction already cost us" and
+        # "what's it about to cost us".
+        penalty_lines = self.env['next.equipment.cost.line'].search([
+            ('equipment_id', 'in', equipments.ids), ('cost_type', '=', 'overdue_penalty'),
+            ('create_date', '>=', date_from), ('create_date', '<=', date_to)])
+
+        return {
+            'opened': opened, 'completed': completed, 'resolved': resolved, 'pending': pending,
+            'overdue_equipment': overdue, 'due_soon_equipment': due_soon, 'upcoming_equipment': upcoming,
+            'cost_already_incurred': sum(penalty_lines.mapped('amount')),
+            'cost_at_risk': sum(upcoming.mapped('overdue_penalty_amount')),
         }
 
     def action_print_director_report(self):

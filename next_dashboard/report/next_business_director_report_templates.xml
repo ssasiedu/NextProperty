@@ -11,6 +11,7 @@
             <t t-set="snap" t-value="docs[0]._get_business_snapshot()"/>
             <t t-set="kpis" t-value="snap['kpis']"/>
             <t t-set="maint" t-value="snap['maintenance']"/>
+            <t t-set="maint_period" t-value="snap['maint_period']"/>
             <t t-set="billing" t-value="snap['billing']"/>
             <t t-call="web.external_layout">
                 <div class="page">
@@ -82,6 +83,58 @@
                         </div>
                     </div>
 
+                    <div class="row text-center mb-4">
+                        <div class="col-2">
+                            <div style="font-size:20px;font-weight:700;"><t t-esc="len(maint_period['opened'])"/></div>
+                            <div class="text-muted small">Tickets Opened (period)</div>
+                        </div>
+                        <div class="col-2">
+                            <div style="font-size:20px;font-weight:700;color:#027A48;"><t t-esc="len(maint_period['completed'])"/></div>
+                            <div class="text-muted small">Tickets Completed (period)</div>
+                        </div>
+                        <div class="col-2">
+                            <div style="font-size:20px;font-weight:700;"><t t-esc="len(maint_period['resolved'])"/></div>
+                            <div class="text-muted small">Resolved, Pending Verification</div>
+                        </div>
+                        <div class="col-2">
+                            <div t-attf-style="font-size:20px;font-weight:700;color:#{'#B54708' if maint_period['pending'] else '#027A48'};">
+                                <t t-esc="len(maint_period['pending'])"/>
+                            </div>
+                            <div class="text-muted small">Pending (all open)</div>
+                        </div>
+                        <div class="col-2">
+                            <div t-attf-style="font-size:20px;font-weight:700;color:#{'#B42318' if maint_period['cost_already_incurred'] else '#1F2937'};">
+                                <span t-esc="maint_period['cost_already_incurred']" t-options="{'widget': 'float', 'precision': 2}"/>
+                            </div>
+                            <div class="text-muted small">Cost of Inaction Incurred (period)</div>
+                        </div>
+                        <div class="col-2">
+                            <div style="font-size:20px;font-weight:700;color:#B42318;">
+                                <span t-esc="maint_period['cost_at_risk']" t-options="{'widget': 'float', 'precision': 2}"/>
+                            </div>
+                            <div class="text-muted small">Cost at Risk (upcoming)</div>
+                        </div>
+                    </div>
+
+                    <h4 style="margin-bottom:4px;">Upcoming Maintenance (overdue + due within 30 days)</h4>
+                    <table class="table table-sm mb-4">
+                        <thead><tr><th>Equipment</th><th>Property</th><th>Next Due</th>
+                            <th>Status</th><th class="text-end">Cost if Not Done</th></tr></thead>
+                        <tbody>
+                            <tr t-if="not maint_period['upcoming_equipment']">
+                                <td colspan="5" class="text-muted">Nothing overdue or due soon.</td></tr>
+                            <tr t-foreach="maint_period['upcoming_equipment']" t-as="eq">
+                                <td><t t-esc="eq.name"/></td>
+                                <td><t t-esc="eq.next_property_id.name"/></td>
+                                <td><t t-esc="eq.next_maintenance_date"/></td>
+                                <td t-attf-style="font-weight:600;color:#{'#B42318' if eq in maint_period['overdue_equipment'] else '#B54708'};">
+                                    <t t-esc="'OVERDUE' if eq in maint_period['overdue_equipment'] else 'DUE SOON'"/>
+                                </td>
+                                <td class="text-end"><span t-esc="eq.overdue_penalty_amount" t-options="{'widget': 'float', 'precision': 2}"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
                     <h4 style="margin-bottom:4px;">Property Profitability (ranked)</h4>
                     <table class="table table-sm mb-4">
                         <thead><tr><th>Property</th><th class="text-end">Revenue</th>
@@ -130,7 +183,8 @@
                         Every figure above is read from its own module's existing calculation
                         (occupancy/ADR/RevPAR from the Hotel BI Dashboard, profitability from the
                         Property Profitability Report, maintenance figures from the Maintenance
-                        Director's Report, billing figures from Owner Billing) - this report is a
+                        Director's Report and its period/cost-of-inaction aggregator, billing
+                        figures from Owner Billing) - this report is a
                         rollup across the whole business, not a second source of truth for any of them.
                     </p>
                 </div>
