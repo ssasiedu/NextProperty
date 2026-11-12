@@ -27,6 +27,13 @@ class NextPropertyDashboardWizard(models.TransientModel):
                                     'are always for the calendar month this date falls in.')
     result_html = fields.Html(readonly=True)
 
+    def _compute_display_name(self):
+        # No 'name' field on this transient wizard, so the breadcrumb/title
+        # otherwise falls back to the bare "next.property.dashboard.wizard,2"
+        # technical reference - this gives it a readable one instead.
+        for rec in self:
+            rec.display_name = 'Property Dashboard - %s' % (rec.property_id.name or 'New')
+
     @api.model
     def default_get(self, fields_list):
         res = super().default_get(fields_list)

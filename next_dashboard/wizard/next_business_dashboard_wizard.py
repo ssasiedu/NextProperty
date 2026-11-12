@@ -38,6 +38,14 @@ class NextBusinessDashboardWizard(models.TransientModel):
                                     'are always for the calendar month this date falls in.')
     result_html = fields.Html(readonly=True)
 
+    def _compute_display_name(self):
+        # No 'name' field on this transient wizard, so the breadcrumb/title
+        # otherwise falls back to the bare "next.business.dashboard.wizard,2"
+        # technical reference - this gives it a readable one instead.
+        for rec in self:
+            rec.display_name = 'Executive Dashboard - %s %s' % (
+                dict(rec._fields['period_type'].selection).get(rec.period_type, ''), rec.anchor_date or '')
+
     def _get_date_range(self):
         self.ensure_one()
         return self._compute_date_range(self.period_type, self.anchor_date)
