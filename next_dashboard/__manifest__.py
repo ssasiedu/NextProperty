@@ -1,6 +1,6 @@
 {
     'name': 'NEXT Property Management - Executive Dashboard',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Industries/Hospitality',
     'summary': "A 360-degree, whole-business view across every NEXT module, plus an automated monthly director's report",
     'description': """
@@ -24,9 +24,17 @@ auto report that gives a 360 view of the entire business."
 * A monthly `ir.cron` that automatically generates that same PDF for the
   month just ended and emails it to every Manager-group user - the "auto
   report" the request asks for, with no one needing to remember to run it.
+* The dashboard and report also break down maintenance ticket activity for
+  the selected period (opened/resolved/pending/completed) and the upcoming
+  preventive maintenance due, with the cost of letting it slide, both
+  already incurred this period and currently at risk.
+* A second dashboard (menu: NEXT Property Mgmt > Property Dashboard) gives
+  a property manager the exact same view, narrowed to one property - same
+  aggregator, same layout, same PDF structure, just property-scoped. A
+  manager of exactly one property lands on it with nothing to pick.
 
 Scoped to the Manager/Accountant groups - this is an internal, whole-
-business view, never shown to a Property Owner.
+business (or single-property) view, never shown to a Property Owner.
 """,
     'author': 'NEXT Property Management',
     'license': 'LGPL-3',
@@ -39,7 +47,10 @@ business view, never shown to a Property Owner.
         'data/next_dashboard_cron.xml',
         'report/next_business_director_report.xml',
         'report/next_business_director_report_templates.xml',
+        'report/next_property_manager_report.xml',
+        'report/next_property_manager_report_templates.xml',
         'wizard/next_business_dashboard_wizard_views.xml',
+        'wizard/next_property_dashboard_wizard_views.xml',
         'views/next_dashboard_menus.xml',
     ],
     'installable': True,

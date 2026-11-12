@@ -11,7 +11,20 @@ class MaintenanceRequest(models.Model):
     _inherit = 'maintenance.request'
 
     next_room_id = fields.Many2one('next.room', string='Room')
-    next_property_id = fields.Many2one(related='next_room_id.property_id', store=True, string='Property')
+    # Was a plain related=next_room_id.property_id - but a preventive ticket
+    # against PROPERTY-WIDE equipment (generator, pool pump, lobby AC - see
+    # next_maintenance_equipment.py) has no next_room_id at all, so it fell
+    # through to no property link whatsoever and was invisible to every
+    # property-scoped report/dashboard (the per-property Manager Dashboard
+    # this field exists for). Falls back to the equipment's own property
+    # when there's no room.
+    next_property_id = fields.Many2one(
+        'next.property', string='Property', compute='_compute_next_property_id', store=True)
+
+    @api.depends('next_room_id.property_id', 'equipment_id.next_property_id')
+    def _compute_next_property_id(self):
+        for rec in self:
+            rec.next_property_id = rec.next_room_id.property_id or rec.equipment_id.next_property_id
 
     raised_by_type = fields.Selection([
         ('guest', 'Guest (Portal)'),

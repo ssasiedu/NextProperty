@@ -7,4 +7,12 @@
     <menuitem id="menu_next_business_dashboard" name="Executive Dashboard"
               parent="next_base.menu_next_root" action="action_next_business_dashboard_wizard"
               sequence="15" groups="next_base.group_next_manager,next_base.group_next_accountant"/>
+
+    <!-- sequence="16" - right after Executive Dashboard, still above every
+         other top-level menu. Same access as the Executive Dashboard; see
+         next_property_dashboard_wizard.py's default_get for how a
+         single-property manager lands straight on their own property. -->
+    <menuitem id="menu_next_property_dashboard" name="Property Dashboard"
+              parent="next_base.menu_next_root" action="action_next_property_dashboard_wizard"
+              sequence="16" groups="next_base.group_next_manager,next_base.group_next_accountant"/>
 </odoo>
